@@ -1,0 +1,93 @@
+﻿@using System.Threading
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Stripe.Elements.Abstract
+@using Soenneker.Blazor.Stripe.Elements.Configuration
+@using Soenneker.Extensions.Task
+@using Soenneker.Extensions.ValueTask
+@inject IStripeElementsInterop StripeElementsInterop
+
+<div id="@ElementId" @ref="ElementReference" >
+    @ChildContent
+</div>
+
+@code {
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnInitialize { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnValidatePayment { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSubmitPayment { get; set; }
+
+    public string ElementId = Guid.NewGuid().ToString();
+
+    protected ElementReference ElementReference;
+
+    protected readonly CancellationTokenSource CTs = new();
+
+    protected DotNetObjectReference<StripeElements>? DotNetReference;
+
+    [Parameter]
+    public StripeElementsConfiguration ElementsConfiguration { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StripeElementsInterop.Initialize().NoSync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Initialize().NoSync();
+        }
+    }
+
+    public async ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default)
+    {
+        if (configuration != null)
+            ElementsConfiguration = configuration;
+
+        DotNetReference = DotNetObjectReference.Create(this);
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        await StripeElementsInterop.Create(ElementReference, ElementId, DotNetReference, ElementsConfiguration, linkedCts.Token).NoSync();
+        await StripeElementsInterop.CreateObserver(ElementId, linkedCts.Token).NoSync();
+    }
+
+    [JSInvokable("OnInitializedJs")]
+    public async Task OnInitializedJs()
+    {
+        if (OnInitialize.HasDelegate)
+            await OnInitialize.InvokeAsync().NoSync();
+    }
+
+    [JSInvokable("OnValidatePaymentJs")]
+    public async Task OnValidatePaymentJs()
+    {
+        if (OnValidatePayment.HasDelegate)
+            await OnValidatePayment.InvokeAsync().NoSync();
+    }
+
+    [JSInvokable("OnSubmitPaymentJs")]
+    public async Task OnSubmitPaymentJs()
+    {
+        if (OnSubmitPayment.HasDelegate)
+            await OnSubmitPayment.InvokeAsync().NoSync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+
+        DotNetReference?.Dispose();
+
+        await CTs.CancelAsync().NoSync();
+    }
+
+}

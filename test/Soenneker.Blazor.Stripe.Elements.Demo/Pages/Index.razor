@@ -1,37 +1,28 @@
 ﻿@page "/"
-@using Microsoft.Extensions.Logging
-@using Soenneker.Utils.AutoBogus
-
-@inject ILogger<Index> Logger
+@using Soenneker.Blazor.Stripe.Elements.Configuration
 
 <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
 <h1>Soenneker.Blazor.Stripe.Elements demo</h1>
 <p>This page demonstrates some of the common usages for the interop library.</p>
 
-@if (_render)
-{
-}
+<StripeElements ElementsConfiguration="_config">
+    <StripeAddressElement></StripeAddressElement>
+    <StripeLinkAuthenticationElement></StripeLinkAuthenticationElement>
+    <StripePaymentElement></StripePaymentElement>
+    <Button>Submit</Button>
+</StripeElements>
+
 <br />
 
 <hr />
 
 @code{
 
-    private AutoFaker _autoFaker = null!;
-
-    private bool _render = true;
-
-    protected override void OnInitialized()
+    private readonly StripeElementsConfiguration _config = new()
     {
-        _autoFaker = new AutoFaker();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-    }
-
-    private void Render()
-    {
-        _render = !_render;
-    }
+        CustomerEmail = "blah@gmail.com",
+        CustomerName = "Test Test",
+        PublishableKey = "",
+        StripeJsConfiguration = new StripeJsConfiguration {Currency = "usd", Amount = 100, Mode = "payment"}
+    };
 }
