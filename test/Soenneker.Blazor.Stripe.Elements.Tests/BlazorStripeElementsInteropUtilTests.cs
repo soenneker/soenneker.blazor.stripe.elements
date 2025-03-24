@@ -7,11 +7,11 @@ namespace Soenneker.Blazor.Stripe.Elements.Tests;
 [Collection("Collection")]
 public class BlazorStripeElementsInteropUtilTests : FixturedUnitTest
 {
-    private readonly IBlazorStripeElementsInteropUtil _blazorlibrary;
+    private readonly IStripeElementsInterop _blazorlibrary;
 
     public BlazorStripeElementsInteropUtilTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
     {
-        _blazorlibrary = Resolve<IBlazorStripeElementsInteropUtil>(true);
+        _blazorlibrary = Resolve<IStripeElementsInterop>(true);
     }
 
     [Fact]

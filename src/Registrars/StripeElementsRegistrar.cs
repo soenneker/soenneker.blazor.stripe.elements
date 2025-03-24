@@ -1,20 +1,21 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Stripe.Elements.Abstract;
+using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
 namespace Soenneker.Blazor.Stripe.Elements.Registrars;
 
 /// <summary>
 /// A Blazor interop library for Stripe Elements
 /// </summary>
-public static class BlazorStripeElementsInteropUtilRegistrar
+public static class StripeElementsRegistrar
 {
     /// <summary>
-    /// Adds <see cref="IBlazorStripeElementsInteropUtil"/> as a scoped service. <para/>
+    /// Adds <see cref="IStripeElementsInterop"/> as a scoped service. <para/>
     /// </summary>
     public static IServiceCollection AddBlazorStripeElementsInteropUtilAsScoped(this IServiceCollection services)
     {
-        services.TryAddScoped<IBlazorStripeElementsInteropUtil, BlazorStripeElementsInteropUtil>();
+        services.AddResourceLoaderAsScoped().TryAddScoped<IStripeElementsInterop, StripeElementsInterop>();
 
         return services;
     }
