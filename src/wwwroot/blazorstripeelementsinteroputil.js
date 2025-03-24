@@ -1,0 +1,3 @@
+﻿window.initblazorstripeelementsinteroputil = (params) => {
+
+};
