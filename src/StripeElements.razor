@@ -50,14 +50,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await StripeElementsInterop.Initialize().NoSync();
+        await StripeElementsInterop.Initialize(_cTs.Token).NoSync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await Initialize().NoSync();
+            await Initialize(cancellationToken: _cTs.Token).NoSync();
         }
     }
 
@@ -74,19 +74,26 @@
 
         _dotNetReference = DotNetObjectReference.Create(this);
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        await StripeElementsInterop.Create(ElementId, _dotNetReference, StripeElementsConfiguration, linkedCts.Token).NoSync();
-        await StripeElementsInterop.CreateObserver(ElementId, linkedCts.Token).NoSync();
+        using CancellationTokenSource? linkedCts = cancellationToken != _cTs.Token
+            ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token)
+            : null;
+
+        CancellationToken token = linkedCts?.Token ?? _cTs.Token;
+
+        await StripeElementsInterop.Create(ElementId, _dotNetReference, StripeElementsConfiguration, token).NoSync();
+        await StripeElementsInterop.CreateObserver(ElementId, token).NoSync();
     }
 
-    public ValueTask ValidatePayment(CancellationToken cancellationToken = default)
+    public async ValueTask ValidatePayment(CancellationToken cancellationToken = default)
     {
-        return StripeElementsInterop.ValidatePayment(ElementId, _dotNetReference, cancellationToken);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await StripeElementsInterop.ValidatePayment(ElementId, _dotNetReference, linkedCts.Token);
     }
 
     public ValueTask SubmitPayment(string paymentIntent, string returnUrl, CancellationToken cancellationToken = default)
     {
-        return StripeElementsInterop.SubmitPayment(ElementId, paymentIntent, returnUrl, _dotNetReference, cancellationToken);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        return StripeElementsInterop.SubmitPayment(ElementId, paymentIntent, returnUrl, _dotNetReference, linkedCts.Token);
     }
 
     [JSInvokable("OnInitializedJs")]
