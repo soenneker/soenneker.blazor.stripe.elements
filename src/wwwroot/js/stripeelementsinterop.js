@@ -1,83 +1,138 @@
 ﻿export class StripeElementsInterop {
     constructor() {
-        this.stripe = null;
-        this.elements = null;
-        this.paymentElement = null;
-        this.addressElement = null;
-        this.linkAuthElement = null;
-        this.stripeOptions = null;
+        this.stripeElementsGroups = [];
     }
 
-    create(element, elementId, config, dotNetCallback) {
-        const parsedConfig = JSON.parse(config);
+    create(groupId, configJson, dotNetCallback) {
+        const config = JSON.parse(configJson);
 
-        this.stripe = window.Stripe(parsedConfig.publishableKey);
-        this.stripeOptions = parsedConfig.stripeConfiguration;
+        const stripe = window.Stripe(config.publishableKey);
+        const elements = stripe.elements(config.stripeConfiguration);
 
-        this.elements = this.stripe.elements(this.stripeOptions);
+        const group = {
+            id: groupId,
+            stripe,
+            elements,
+            components: {}
+        };
 
-        this.linkAuthElement = this.elements.create('linkAuthentication', {
-            defaultValues: { email: parsedConfig.customerEmail }
-        });
+        if (config.linkAuthenticationElementId) {
+            const linkAuthTarget = document.getElementById(config.linkAuthenticationElementId);
 
-        this.paymentElement = this.elements.create('payment', {
-            mode: "payment",
-            defaultValues: {
-                email: parsedConfig.customerEmail,
-                name: parsedConfig.customerName
+            if (linkAuthTarget) {
+                group.components.linkAuth = elements.create("linkAuthentication", {
+                    defaultValues: { email: config.customerEmail }
+                });
+                group.components.linkAuth.mount(linkAuthTarget);
             }
-        });
+        }
 
-        this.addressElement = this.elements.create('address', {
-            mode: "billing",
-            defaultValues: {
-                name: parsedConfig.customerName
+        if (config.paymentElementId) {
+            const paymentTarget = document.getElementById(config.paymentElementId);
+
+            if (paymentTarget) {
+                group.components.payment = elements.create("payment", {
+                    mode: "payment",
+                    defaultValues: {
+                        email: config.customerEmail,
+                        name: config.customerName
+                    }
+                });
+                group.components.payment.mount(paymentTarget);
             }
-        });
+        }
 
-        const linkAuthTarget = parsedConfig.linkAuthElement || "stripe-link-authentication-element";
-        const paymentTarget = parsedConfig.paymentElement || "stripe-payment-element";
-        const addressTarget = parsedConfig.addressElement || "stripe-address-element";
+        if (config.addressElementId) {
+            const addressTarget = document.getElementById(config.addressElementId);
 
-        this.linkAuthElement.mount(`#${linkAuthTarget}`);
-        this.paymentElement.mount(`#${paymentTarget}`);
-        this.addressElement.mount(`#${addressTarget}`);
+            if (addressTarget) {
+                group.components.address = elements.create("address", {
+                    mode: "billing",
+                    defaultValues: {
+                        name: config.customerName
+                    }
+                });
+                group.components.address.mount(addressTarget);
+            }
+        }
 
-        dotNetCallback.invokeMethodAsync("OnInitializedJs")
+        this.stripeElementsGroups.push(group);
+
+        dotNetCallback.invokeMethodAsync("OnInitializedJs");
     }
 
-    validatePayment(dotNetHelper) {
-        this.elements.submit().then(result => {
-            dotNetHelper.invokeMethodAsync('OnValidatePaymentJs', result.error);
+    validatePayment(groupId, dotNetCallback) {
+        const group = this._findGroup(groupId);
+        if (!group) {
+            console.error(`StripeElements group "${groupId}" not found for validation.`);
+            return;
+        }
+
+        group.elements.submit().then(result => {
+            dotNetCallback.invokeMethodAsync('OnValidatePaymentJs', result.error);
         });
     }
 
-    submitPayment(paymentIntentSecret, returnUrl, dotNetHelper) {
-        this.stripe.confirmPayment({
+    submitPayment(groupId, paymentIntentSecret, returnUrl, dotNetCallback) {
+        const group = this._findGroup(groupId);
+        if (!group) {
+            console.error(`StripeElements group "${groupId}" not found for submission.`);
+            return;
+        }
+
+        group.stripe.confirmPayment({
             clientSecret: paymentIntentSecret,
-            elements: this.elements,
+            elements: group.elements,
             confirmParams: {
                 return_url: returnUrl
             },
             redirect: "if_required"
         }).then(result => {
-            dotNetHelper.invokeMethodAsync('OnSubmitPaymentJs', result.error);
+            dotNetCallback.invokeMethodAsync('OnSubmitPaymentJs', result.error);
         });
+    }
+
+    unmountGroup(groupId) {
+        const group = this._findGroup(groupId);
+        if (!group) return;
+
+        Object.values(group.components).forEach(component => {
+            try {
+                component.unmount();
+                if (typeof component.destroy === "function") {
+                    component.destroy();
+                }
+            } catch (e) {
+                console.warn(`Failed to unmount or destroy component: ${e}`);
+            }
+        });
+
+        this.stripeElementsGroups = this.stripeElementsGroups.filter(g => g.id !== groupId);
     }
 
     createObserver(elementId) {
         const target = document.getElementById(elementId);
 
         this.observer = new MutationObserver((mutations) => {
-            const targetRemoved = mutations.some(mutation => Array.from(mutation.removedNodes).indexOf(target) !== -1);
+            const targetRemoved = mutations.some(mutation =>
+                Array.from(mutation.removedNodes).indexOf(target) !== -1
+            );
 
             if (targetRemoved) {
+                unmountGroup(elementId);
+
                 this.observer && this.observer.disconnect();
                 delete this.observer;
             }
         });
 
-        this.observer.observe(target.parentNode, { childList: true });
+        if (target && target.parentNode) {
+            this.observer.observe(target.parentNode, { childList: true });
+        }
+    }
+
+    _findGroup(groupId) {
+        return this.stripeElementsGroups.find(g => g.id === groupId);
     }
 }
 

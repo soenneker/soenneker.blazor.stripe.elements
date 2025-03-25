@@ -2,15 +2,23 @@
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Stripe.Elements.Abstract
 @using Soenneker.Blazor.Stripe.Elements.Configuration
+@using Soenneker.Extensions.Object
 @using Soenneker.Extensions.Task
 @using Soenneker.Extensions.ValueTask
 @inject IStripeElementsInterop StripeElementsInterop
 
-<div id="@ElementId" @ref="ElementReference" >
-    @ChildContent
+@implements IAsyncDisposable
+
+<div id="@ElementId" @attributes="Attributes" >
+    <CascadingValue Value="_elementIds" >
+        @ChildContent
+    </CascadingValue>
 </div>
 
 @code {
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object?>? Attributes { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
@@ -24,16 +32,21 @@
     [Parameter]
     public EventCallback<string> OnSubmitPayment { get; set; }
 
-    public string ElementId = Guid.NewGuid().ToString();
+    public string ElementId = $"stripe-elements-{Guid.NewGuid().ToString()}";
 
-    protected ElementReference ElementReference;
+    private readonly CancellationTokenSource _cTs = new();
 
-    protected readonly CancellationTokenSource CTs = new();
-
-    protected DotNetObjectReference<StripeElements>? DotNetReference;
+    private DotNetObjectReference<StripeElements>? _dotNetReference;
 
     [Parameter]
-    public StripeElementsConfiguration ElementsConfiguration { get; set; } = new();
+    public StripeElementsConfiguration? StripeElementsConfiguration { get; set; }
+
+    private readonly Dictionary<Type, string> _elementIds = new()
+    {
+        {typeof(StripeAddressElement), $"stripe-address-{Guid.NewGuid()}"},
+        {typeof(StripeLinkAuthenticationElement), $"stripe-link-auth-{Guid.NewGuid()}"},
+        {typeof(StripePaymentElement), $"stripe-payment-{Guid.NewGuid()}"}
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,13 +64,29 @@
     public async ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
         if (configuration != null)
-            ElementsConfiguration = configuration;
+            StripeElementsConfiguration = configuration;
 
-        DotNetReference = DotNetObjectReference.Create(this);
+        StripeElementsConfiguration.ThrowIfNull();
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await StripeElementsInterop.Create(ElementReference, ElementId, DotNetReference, ElementsConfiguration, linkedCts.Token).NoSync();
+        StripeElementsConfiguration.AddressElementId ??= _elementIds[typeof(StripeAddressElement)];
+        StripeElementsConfiguration.LinkAuthenticationElementId ??= _elementIds[typeof(StripeLinkAuthenticationElement)];
+        StripeElementsConfiguration.PaymentElementId ??= _elementIds[typeof(StripePaymentElement)];
+
+        _dotNetReference = DotNetObjectReference.Create(this);
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await StripeElementsInterop.Create(ElementId, _dotNetReference, StripeElementsConfiguration, linkedCts.Token).NoSync();
         await StripeElementsInterop.CreateObserver(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public ValueTask ValidatePayment(CancellationToken cancellationToken = default)
+    {
+        return StripeElementsInterop.ValidatePayment(ElementId, _dotNetReference, cancellationToken);
+    }
+
+    public ValueTask SubmitPayment(string paymentIntent, string returnUrl, CancellationToken cancellationToken = default)
+    {
+        return StripeElementsInterop.SubmitPayment(ElementId, paymentIntent, returnUrl, _dotNetReference, cancellationToken);
     }
 
     [JSInvokable("OnInitializedJs")]
@@ -85,9 +114,9 @@
     {
         GC.SuppressFinalize(this);
 
-        DotNetReference?.Dispose();
+        _dotNetReference?.Dispose();
 
-        await CTs.CancelAsync().NoSync();
+        await _cTs.CancelAsync().NoSync();
     }
 
 }

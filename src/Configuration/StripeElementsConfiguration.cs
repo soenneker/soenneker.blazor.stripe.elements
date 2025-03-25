@@ -16,8 +16,8 @@ public class StripeElementsConfiguration
     [JsonPropertyName("stripeConfiguration")]
     public StripeJsConfiguration StripeJsConfiguration { get; set; }
 
-    [JsonPropertyName("linkAuthElementId")]
-    public string? LinkAuthElementId { get; set; }
+    [JsonPropertyName("linkAuthenticationElementId")]
+    public string? LinkAuthenticationElementId { get; set; }
 
     [JsonPropertyName("paymentElementId")]
     public string? PaymentElementId { get; set; }

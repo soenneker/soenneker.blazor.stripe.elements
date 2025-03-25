@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
-using Soenneker.Blazor.Utils.EventListeningInterop.Abstract;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,8 +9,10 @@ namespace Soenneker.Blazor.Stripe.Elements.Abstract;
 /// <summary>
 /// A Blazor interop library for Stripe Elements
 /// </summary>
-public interface IStripeElementsInterop : IEventListeningInterop, IAsyncDisposable
+public interface IStripeElementsInterop : IAsyncDisposable
 {
+    ValueTask LoadStripe(CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Initializes the StripeElements interop by loading required scripts and styles.
     /// </summary>
@@ -20,7 +20,7 @@ public interface IStripeElementsInterop : IEventListeningInterop, IAsyncDisposab
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
     ValueTask Initialize(CancellationToken cancellationToken = default);
 
-    ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef,
+    ValueTask Create(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef,
         StripeElementsConfiguration elementsConfiguration, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -31,8 +31,8 @@ public interface IStripeElementsInterop : IEventListeningInterop, IAsyncDisposab
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
     ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default);
 
-    ValueTask ValidatePayment(DotNetObjectReference<StripeElements> dotNetObjectRef, CancellationToken cancellationToken = default);
+    ValueTask ValidatePayment(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef, CancellationToken cancellationToken = default);
 
-    ValueTask SubmitPayment(string paymentIntent, string returnUrl, DotNetObjectReference<StripeElements> dotNetObjectRef,
+    ValueTask SubmitPayment(string elementId, string paymentIntent, string returnUrl, DotNetObjectReference<StripeElements> dotNetObjectRef,
         CancellationToken cancellationToken = default);
 }

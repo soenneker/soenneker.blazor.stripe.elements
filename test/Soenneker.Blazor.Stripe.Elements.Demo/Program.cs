@@ -33,7 +33,7 @@ public class Program
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-            builder.Services.AddBlazorStripeElementsInteropUtilAsScoped();
+            builder.Services.AddStripeElementsInteropAsScoped();
 
             builder.Services
                 .AddBlazorise()

@@ -14,7 +14,7 @@ public static class StripeElementsRegistrar
     /// <summary>
     /// Adds <see cref="IStripeElementsInterop"/> as a scoped service. <para/>
     /// </summary>
-    public static IServiceCollection AddBlazorStripeElementsInteropUtilAsScoped(this IServiceCollection services)
+    public static IServiceCollection AddStripeElementsInteropAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped().AddInteropEventListenerAsScoped().TryAddScoped<IStripeElementsInterop, StripeElementsInterop>();
 
