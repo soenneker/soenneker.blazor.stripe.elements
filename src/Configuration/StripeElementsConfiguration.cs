@@ -5,16 +5,16 @@ namespace Soenneker.Blazor.Stripe.Elements.Configuration;
 public class StripeElementsConfiguration
 {
     [JsonPropertyName("customerName")]
-    public string CustomerName { get; set; }
+    public string? CustomerName { get; set; }
 
     [JsonPropertyName("customerEmail")]
-    public string CustomerEmail { get; set; }
+    public string? CustomerEmail { get; set; }
 
     [JsonPropertyName("publishableKey")]
-    public string PublishableKey { get; set; }
+    public string PublishableKey { get; set; } = null!;
 
     [JsonPropertyName("stripeConfiguration")]
-    public StripeJsConfiguration StripeJsConfiguration { get; set; }
+    public StripeJsConfiguration StripeJsConfiguration { get; set; } = null!;
 
     [JsonPropertyName("linkAuthenticationElementId")]
     public string? LinkAuthenticationElementId { get; set; }

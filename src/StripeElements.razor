@@ -1,11 +1,12 @@
 ﻿@using System.Threading
+@using Microsoft.Extensions.Logging
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Stripe.Elements.Abstract
 @using Soenneker.Blazor.Stripe.Elements.Configuration
-@using Soenneker.Extensions.Object
 @using Soenneker.Extensions.Task
 @using Soenneker.Extensions.ValueTask
 @inject IStripeElementsInterop StripeElementsInterop
+@inject ILogger<StripeElements> Logger
 
 @implements IAsyncDisposable
 
@@ -21,7 +22,7 @@
     public Dictionary<string, object?>? Attributes { get; set; }
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
     public EventCallback OnInitialize { get; set; }
@@ -32,7 +33,7 @@
     [Parameter]
     public EventCallback<string> OnSubmitPayment { get; set; }
 
-    public string ElementId = $"stripe-elements-{Guid.NewGuid().ToString()}";
+    public readonly string ElementId = $"stripe-elements-{Guid.NewGuid().ToString()}";
 
     private readonly CancellationTokenSource _cTs = new();
 
@@ -41,12 +42,17 @@
     [Parameter]
     public StripeElementsConfiguration? StripeElementsConfiguration { get; set; }
 
+    [Parameter]
+    public bool Log { get; set; }
+
     private readonly Dictionary<Type, string> _elementIds = new()
     {
         {typeof(StripeAddressElement), $"stripe-address-{Guid.NewGuid()}"},
         {typeof(StripeLinkAuthenticationElement), $"stripe-link-auth-{Guid.NewGuid()}"},
         {typeof(StripePaymentElement), $"stripe-payment-{Guid.NewGuid()}"}
     };
+
+    private bool _initialized;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,10 +69,18 @@
 
     public async ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
+        _initialized = true;
+
         if (configuration != null)
             StripeElementsConfiguration = configuration;
 
-        StripeElementsConfiguration.ThrowIfNull();
+        if (StripeElementsConfiguration == null)
+        {
+            if (Log)
+                Logger.LogError("StripeElementsConfiguration is required, exiting initialization");
+
+            return;
+        }
 
         StripeElementsConfiguration.AddressElementId ??= _elementIds[typeof(StripeAddressElement)];
         StripeElementsConfiguration.LinkAuthenticationElementId ??= _elementIds[typeof(StripeLinkAuthenticationElement)];
@@ -74,9 +88,7 @@
 
         _dotNetReference = DotNetObjectReference.Create(this);
 
-        using CancellationTokenSource? linkedCts = cancellationToken != _cTs.Token
-            ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token)
-            : null;
+        using CancellationTokenSource? linkedCts = cancellationToken != _cTs.Token ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token) : null;
 
         CancellationToken token = linkedCts?.Token ?? _cTs.Token;
 
@@ -86,14 +98,20 @@
 
     public async ValueTask ValidatePayment(CancellationToken cancellationToken = default)
     {
+        if (!_initialized)
+            throw new Exception("Stripe Elements has not been initialized yet.");
+
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        await StripeElementsInterop.ValidatePayment(ElementId, _dotNetReference, linkedCts.Token);
+        await StripeElementsInterop.ValidatePayment(ElementId, _dotNetReference!, linkedCts.Token);
     }
 
     public ValueTask SubmitPayment(string paymentIntent, string returnUrl, CancellationToken cancellationToken = default)
     {
+        if (!_initialized)
+            throw new Exception("Stripe Elements has not been initialized yet.");
+
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        return StripeElementsInterop.SubmitPayment(ElementId, paymentIntent, returnUrl, _dotNetReference, linkedCts.Token);
+        return StripeElementsInterop.SubmitPayment(ElementId, paymentIntent, returnUrl, _dotNetReference!, linkedCts.Token);
     }
 
     [JSInvokable("OnInitializedJs")]

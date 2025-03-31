@@ -6,10 +6,10 @@ namespace Soenneker.Blazor.Stripe.Elements.Configuration;
 public class StripeJsConfiguration
 {
     [JsonPropertyName("mode")]
-    public StripeElementsMode Mode { get; set; }
+    public StripeElementsMode Mode { get; set; } = null!;
 
     [JsonPropertyName("currency")]
-    public string Currency { get; set; }
+    public string Currency { get; set; } = null!;
 
     [JsonPropertyName("amount")]
     public int Amount { get; set; }

@@ -20,8 +20,13 @@
             const linkAuthTarget = document.getElementById(config.linkAuthenticationElementId);
 
             if (linkAuthTarget) {
+                const defaultValues = {};
+
+                if (config.customerEmail)
+                    defaultValues.email = config.customerEmail;
+
                 group.components.linkAuth = elements.create("linkAuthentication", {
-                    defaultValues: { email: config.customerEmail }
+                    defaultValues
                 });
                 group.components.linkAuth.mount(linkAuthTarget);
             }
@@ -31,12 +36,13 @@
             const paymentTarget = document.getElementById(config.paymentElementId);
 
             if (paymentTarget) {
+                const defaultValues = {};
+                if (config.customerEmail) defaultValues.email = config.customerEmail;
+                if (config.customerName) defaultValues.name = config.customerName;
+
                 group.components.payment = elements.create("payment", {
                     mode: "payment",
-                    defaultValues: {
-                        email: config.customerEmail,
-                        name: config.customerName
-                    }
+                    defaultValues
                 });
                 group.components.payment.mount(paymentTarget);
             }
@@ -46,11 +52,13 @@
             const addressTarget = document.getElementById(config.addressElementId);
 
             if (addressTarget) {
+                const defaultValues = {};
+                if (config.customerName)
+                    defaultValues.name = config.customerName;
+
                 group.components.address = elements.create("address", {
                     mode: "billing",
-                    defaultValues: {
-                        name: config.customerName
-                    }
+                    defaultValues
                 });
                 group.components.address.mount(addressTarget);
             }
