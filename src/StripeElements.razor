@@ -3,6 +3,7 @@
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Stripe.Elements.Abstract
 @using Soenneker.Blazor.Stripe.Elements.Configuration
+@using Soenneker.Dtos.Stripe.Error
 @using Soenneker.Extensions.Task
 @using Soenneker.Extensions.ValueTask
 @inject IStripeElementsInterop StripeElementsInterop
@@ -28,10 +29,10 @@
     public EventCallback OnInitialize { get; set; }
 
     [Parameter]
-    public EventCallback<string> OnValidatePayment { get; set; }
+    public EventCallback<StripeErrorDto?> OnValidatePayment { get; set; }
 
     [Parameter]
-    public EventCallback<string> OnSubmitPayment { get; set; }
+    public EventCallback<StripeErrorDto?> OnSubmitPayment { get; set; }
 
     public readonly string ElementId = $"stripe-elements-{Guid.NewGuid().ToString()}";
 
@@ -122,17 +123,17 @@
     }
 
     [JSInvokable("OnValidatePaymentJs")]
-    public async Task OnValidatePaymentJs()
+    public async Task OnValidatePaymentJs(StripeErrorDto? error)
     {
         if (OnValidatePayment.HasDelegate)
-            await OnValidatePayment.InvokeAsync().NoSync();
+            await OnValidatePayment.InvokeAsync(error).NoSync();
     }
 
     [JSInvokable("OnSubmitPaymentJs")]
-    public async Task OnSubmitPaymentJs()
+    public async Task OnSubmitPaymentJs(StripeErrorDto? error)
     {
         if (OnSubmitPayment.HasDelegate)
-            await OnSubmitPayment.InvokeAsync().NoSync();
+            await OnSubmitPayment.InvokeAsync(error).NoSync();
     }
 
     public async ValueTask DisposeAsync()
