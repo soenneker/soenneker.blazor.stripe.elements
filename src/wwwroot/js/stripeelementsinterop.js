@@ -3,7 +3,7 @@
         this.stripeElementsGroups = [];
     }
 
-    create(groupId, configJson, dotNetCallback) {
+    async create(groupId, configJson, dotNetCallback) {
         const config = JSON.parse(configJson);
 
         const stripe = window.Stripe(config.publishableKey);
@@ -37,11 +37,18 @@
 
             if (paymentTarget) {
                 const defaultValues = {};
-                if (config.customerEmail) defaultValues.email = config.customerEmail;
-                if (config.customerName) defaultValues.name = config.customerName;
+
+                if (config.customerEmail || config.customerName) {
+                    defaultValues.billingDetails = {};
+
+                    if (config.customerEmail)
+                        defaultValues.billingDetails.email = config.customerEmail;
+
+                    if (config.customerName)
+                        defaultValues.billingDetails.name = config.customerName;
+                }
 
                 group.components.payment = elements.create("payment", {
-                    mode: "payment",
                     defaultValues
                 });
                 group.components.payment.mount(paymentTarget);
@@ -66,38 +73,44 @@
 
         this.stripeElementsGroups.push(group);
 
-        dotNetCallback.invokeMethodAsync("OnInitializedJs");
+        await dotNetCallback.invokeMethodAsync("OnInitializedJs");
     }
 
-    validatePayment(groupId, dotNetCallback) {
+    async validatePayment(groupId, dotNetCallback) {
         const group = this._findGroup(groupId);
+
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for validation.`);
             return;
         }
 
-        group.elements.submit().then(result => {
-            dotNetCallback.invokeMethodAsync('OnValidatePaymentJs', result.error);
-        });
+        const result = await group.elements.submit();
+        await dotNetCallback.invokeMethodAsync('OnValidatePaymentJs', result.error);
     }
 
-    submitPayment(groupId, paymentIntentSecret, returnUrl, dotNetCallback) {
+    async submitPayment(groupId, paymentIntentSecret, returnUrl, dotNetCallback) {
         const group = this._findGroup(groupId);
+
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for submission.`);
             return;
         }
 
-        group.stripe.confirmPayment({
+        if (!paymentIntentSecret || typeof paymentIntentSecret !== "string") {
+            console.error("❌ Missing or invalid paymentIntentSecret (clientSecret) in submitPayment call");
+            return;
+        }
+
+        const result = await group.stripe.confirmPayment({
             clientSecret: paymentIntentSecret,
             elements: group.elements,
             confirmParams: {
                 return_url: returnUrl
             },
             redirect: "if_required"
-        }).then(result => {
-            dotNetCallback.invokeMethodAsync('OnSubmitPaymentJs', result.error);
         });
+
+        await dotNetCallback.invokeMethodAsync('OnSubmitPaymentJs', result.error);
     }
 
     unmountGroup(groupId) {
@@ -127,7 +140,7 @@
             );
 
             if (targetRemoved) {
-                unmountGroup(elementId);
+                this.unmountGroup(elementId);
 
                 this.observer && this.observer.disconnect();
                 delete this.observer;

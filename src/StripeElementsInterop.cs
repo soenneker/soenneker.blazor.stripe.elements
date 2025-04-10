@@ -21,6 +21,7 @@ public class StripeElementsInterop : IStripeElementsInterop
     private readonly IJSRuntime _jsRuntime;
 
     private const string _module = "Soenneker.Blazor.Stripe.Elements/js/stripeelementsinterop.js";
+    private const string _moduleName = "StripeElementsInterop";
 
     public StripeElementsInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader)
     {
@@ -38,7 +39,7 @@ public class StripeElementsInterop : IStripeElementsInterop
         {
             await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token).NoSync();
 
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, "StripeElementsInterop", 100, token).NoSync();
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token).NoSync();
 
             return new object();
         });
@@ -57,28 +58,28 @@ public class StripeElementsInterop : IStripeElementsInterop
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.createObserver", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.createObserver", cancellationToken, elementId);
     }
 
-    public async ValueTask Create(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef,
-        StripeElementsConfiguration elementsConfiguration, CancellationToken cancellationToken = default)
+    public async ValueTask Create(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef, StripeElementsConfiguration elementsConfiguration,
+        CancellationToken cancellationToken = default)
     {
         await _scriptInitializer.Init(cancellationToken).NoSync();
 
         string? json = JsonUtil.Serialize(elementsConfiguration);
 
-        await _jsRuntime.InvokeVoidAsync("StripeElementsInterop.create", cancellationToken, elementId, json, dotNetObjectRef).NoSync();
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementId, json, dotNetObjectRef).NoSync();
     }
 
     public ValueTask ValidatePayment(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.validatePayment", cancellationToken, elementId, dotNetObjectRef);
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.validatePayment", cancellationToken, elementId, dotNetObjectRef);
     }
 
     public ValueTask SubmitPayment(string elementId, string paymentIntent, string returnUrl, DotNetObjectReference<StripeElements> dotNetObjectRef,
         CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.submitPayment", cancellationToken, elementId, paymentIntent, returnUrl, dotNetObjectRef);
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.submitPayment", cancellationToken, elementId, paymentIntent, returnUrl, dotNetObjectRef);
     }
 
     public async ValueTask DisposeAsync()

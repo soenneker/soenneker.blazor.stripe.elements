@@ -1,23 +1,35 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.Stripe.Elements.Configuration
 @using Soenneker.Blazor.Stripe.Elements.Enums
+@using Soenneker.Dtos.Stripe.Error
+@inject ILogger<Index> Logger
 
-<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
-<h1>Soenneker.Blazor.Stripe.Elements demo</h1>
-<p>This page demonstrates some of the common usages for the interop library.</p>
+<Container>
+    <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
+    <h1>Soenneker.Blazor.Stripe.Elements demo</h1>
+    <p>This page demonstrates some of the common usages for the interop library.</p>
 
-<StripeElements StripeElementsConfiguration="_config" >
-    <StripeAddressElement></StripeAddressElement>
-    <StripeLinkAuthenticationElement></StripeLinkAuthenticationElement>
-    <StripePaymentElement></StripePaymentElement>
-    <Button>Submit</Button>
-</StripeElements>
+    <StripeElements @ref="_stripeElements" StripeElementsConfiguration="_config" OnSubmitPayment="StripeSubmitPaymentCallback" OnValidatePayment="StripeValidatePaymentCallback" >
+        <Label>Amount</Label>
+        <NumericPicker CurrencySymbol="$" TValue="decimal?" Value="_amount" CurrencySymbolPlacement="CurrencySymbolPlacement.Prefix" Placeholder="$1.00" Max="10000000" EnableStep="false" Size="Size.Small" >
+        </NumericPicker>
+        <StripeAddressElement></StripeAddressElement>
+        <StripeLinkAuthenticationElement></StripeLinkAuthenticationElement>
+        <StripePaymentElement></StripePaymentElement>
+        <Button Loading="_buttonLoading" Color="Color.Primary" Clicked="Submit" >Submit</Button>
+    </StripeElements>
 
-<br />
-<hr />
-<Anchor To="/second">Go to Second</Anchor>
+    <br />
+    <hr />
+    <Anchor To="/second" >Go to second</Anchor>
+</Container>
 
 @code{
+    StripeElements? _stripeElements;
+    bool _buttonLoading;
+
+    decimal _amount;
 
     private readonly StripeElementsConfiguration _config = new()
     {
@@ -26,5 +38,47 @@
         PublishableKey = "",
         StripeJsConfiguration = new StripeJsConfiguration {Currency = "usd", Amount = 100, Mode = StripeElementsMode.Payment}
     };
+
+    private async Task Submit()
+    {
+        _buttonLoading = true;
+
+        try
+        {
+            await _stripeElements!.ValidatePayment();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error validating payment");
+            _buttonLoading = false;
+        }
+    }
+
+    public async Task StripeValidatePaymentCallback(StripeErrorDto? stripeErrorDto)
+    {
+        if (stripeErrorDto != null)
+        {
+            _buttonLoading = false;
+            StateHasChanged();
+            return;
+        }
+
+        await SubmitPaymentIntent();
+    }
+
+    private async Task SubmitPaymentIntent()
+    {
+        await _stripeElements!.SubmitPayment("intent", "https://localhost:7039");
+    }
+
+    public async Task StripeSubmitPaymentCallback(StripeErrorDto? stripeErrorDto)
+    {
+        if (stripeErrorDto != null)
+        {
+            _buttonLoading = false;
+            StateHasChanged();
+            return;
+        }
+    }
 
 }
