@@ -20,14 +20,12 @@
             const linkAuthTarget = document.getElementById(config.linkAuthenticationElementId);
 
             if (linkAuthTarget) {
-                const defaultValues = {};
+                const options = {};
+                if (config.customerEmail) {
+                    options.defaultValues = { email: config.customerEmail };
+                }
 
-                if (config.customerEmail)
-                    defaultValues.email = config.customerEmail;
-
-                group.components.linkAuth = elements.create("linkAuthentication", {
-                    defaultValues
-                });
+                group.components.linkAuth = elements.create("linkAuthentication", options);
                 group.components.linkAuth.mount(linkAuthTarget);
             }
         }
@@ -36,21 +34,16 @@
             const paymentTarget = document.getElementById(config.paymentElementId);
 
             if (paymentTarget) {
-                const defaultValues = {};
+                const billingDetails = {};
+                if (config.customerEmail) billingDetails.email = config.customerEmail;
+                if (config.customerName) billingDetails.name = config.customerName;
 
-                if (config.customerEmail || config.customerName) {
-                    defaultValues.billingDetails = {};
-
-                    if (config.customerEmail)
-                        defaultValues.billingDetails.email = config.customerEmail;
-
-                    if (config.customerName)
-                        defaultValues.billingDetails.name = config.customerName;
+                const options = {};
+                if (Object.keys(billingDetails).length > 0) {
+                    options.defaultValues = { billingDetails };
                 }
 
-                group.components.payment = elements.create("payment", {
-                    defaultValues
-                });
+                group.components.payment = elements.create("payment", options);
                 group.components.payment.mount(paymentTarget);
             }
         }
@@ -60,13 +53,14 @@
 
             if (addressTarget) {
                 const defaultValues = {};
-                if (config.customerName)
-                    defaultValues.name = config.customerName;
+                if (config.customerName) defaultValues.name = config.customerName;
 
-                group.components.address = elements.create("address", {
-                    mode: "billing",
-                    defaultValues
-                });
+                const options = { mode: "billing" };
+                if (Object.keys(defaultValues).length > 0) {
+                    options.defaultValues = defaultValues;
+                }
+
+                group.components.address = elements.create("address", options);
                 group.components.address.mount(addressTarget);
             }
         }
@@ -85,7 +79,7 @@
         }
 
         const result = await group.elements.submit();
-        await dotNetCallback.invokeMethodAsync('OnValidatePaymentJs', result.error);
+        await dotNetCallback.invokeMethodAsync("OnValidatePaymentJs", result.error);
     }
 
     async submitPayment(groupId, paymentIntentSecret, returnUrl, dotNetCallback) {
@@ -110,7 +104,7 @@
             redirect: "if_required"
         });
 
-        await dotNetCallback.invokeMethodAsync('OnSubmitPaymentJs', result.error);
+        await dotNetCallback.invokeMethodAsync("OnSubmitPaymentJs", result.error);
     }
 
     unmountGroup(groupId) {
@@ -136,18 +130,18 @@
 
         this.observer = new MutationObserver((mutations) => {
             const targetRemoved = mutations.some(mutation =>
-                Array.from(mutation.removedNodes).indexOf(target) !== -1
+                Array.from(mutation.removedNodes).includes(target)
             );
 
             if (targetRemoved) {
                 this.unmountGroup(elementId);
 
-                this.observer && this.observer.disconnect();
+                this.observer?.disconnect();
                 delete this.observer;
             }
         });
 
-        if (target && target.parentNode) {
+        if (target?.parentNode) {
             this.observer.observe(target.parentNode, { childList: true });
         }
     }
