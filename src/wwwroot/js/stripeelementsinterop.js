@@ -1,6 +1,7 @@
 ﻿export class StripeElementsInterop {
     constructor() {
         this.stripeElementsGroups = [];
+        this.observers = new Map();
     }
 
     async create(groupId, configJson, dotNetCallback) {
@@ -52,12 +53,38 @@
             const addressTarget = document.getElementById(config.addressElementId);
 
             if (addressTarget) {
-                const defaultValues = {};
-                if (config.customerName) defaultValues.name = config.customerName;
+                const options = {
+                    mode: config.addressMode || "billing" // fallback to billing if not specified
+                };
 
-                const options = { mode: "billing" };
-                if (Object.keys(defaultValues).length > 0) {
-                    options.defaultValues = defaultValues;
+                // Set defaultValues if provided
+                if (config.addressDefaultValues && typeof config.addressDefaultValues === "object") {
+                    options.defaultValues = config.addressDefaultValues;
+                }
+
+                // Set allowedCountries if provided
+                if (Array.isArray(config.addressAllowedCountries) && config.addressAllowedCountries.length > 0) {
+                    options.allowedCountries = config.addressAllowedCountries;
+                }
+
+                // Set blockPoBox if provided
+                if (typeof config.addressBlockPoBox === "boolean") {
+                    options.blockPoBox = config.addressBlockPoBox;
+                }
+
+                // Set autocomplete if addressAutocompleteApiKey is provided
+                if (typeof config.addressAutocompleteApiKey === "string" && config.addressAutocompleteApiKey.length > 0) {
+                    options.autocomplete = {
+                        mode: "google_maps_api",
+                        apiKey: config.addressAutocompleteApiKey
+                    };
+                }
+
+                // Set phone field option if provided
+                if (typeof config.addressFieldsPhone === "string" && config.addressFieldsPhone.length > 0) {
+                    options.fields = {
+                        phone: config.addressFieldsPhone
+                    };
                 }
 
                 group.components.address = elements.create("address", options);
@@ -123,26 +150,41 @@
         });
 
         this.stripeElementsGroups = this.stripeElementsGroups.filter(g => g.id !== groupId);
+
+        const observer = this.observers.get(groupId);
+        if (observer) {
+            observer.disconnect();
+            this.observers.delete(groupId);
+        }
     }
 
-    createObserver(elementId) {
+    createObserver(groupId, elementId) {
         const target = document.getElementById(elementId);
 
-        this.observer = new MutationObserver((mutations) => {
+        if (!target) {
+            console.warn(`Target element "${elementId}" not found for observer.`);
+            return;
+        }
+
+        const observer = new MutationObserver((mutations) => {
             const targetRemoved = mutations.some(mutation =>
                 Array.from(mutation.removedNodes).includes(target)
             );
 
             if (targetRemoved) {
-                this.unmountGroup(elementId);
+                this.unmountGroup(groupId);
 
-                this.observer?.disconnect();
-                delete this.observer;
+                const currentObserver = this.observers.get(groupId);
+                if (currentObserver) {
+                    currentObserver.disconnect();
+                    this.observers.delete(groupId);
+                }
             }
         });
 
         if (target?.parentNode) {
-            this.observer.observe(target.parentNode, { childList: true });
+            observer.observe(target.parentNode, { childList: true });
+            this.observers.set(groupId, observer);
         }
     }
 

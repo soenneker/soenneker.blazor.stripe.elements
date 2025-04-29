@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Soenneker.Blazor.Stripe.Elements.Configuration;
 
-public class StripeJsConfiguration
+public sealed class StripeJsConfiguration
 {
     [JsonPropertyName("mode")]
     public StripeElementsMode Mode { get; set; } = null!;
