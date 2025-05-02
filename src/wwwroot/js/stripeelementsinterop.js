@@ -110,10 +110,10 @@
         }
     }
 
-    createObserver(groupId, elementId) {
-        const target = document.getElementById(elementId);
+    createObserver(groupId) {
+        const target = document.getElementById(groupId);
         if (!target) {
-            console.warn(`Target element "${elementId}" not found for observer.`);
+            console.warn(`Target element "${groupId}" not found for observer.`);
             return;
         }
 
