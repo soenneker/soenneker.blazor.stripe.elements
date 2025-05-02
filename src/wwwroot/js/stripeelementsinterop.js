@@ -8,7 +8,7 @@
         const config = JSON.parse(configJson);
 
         const stripe = window.Stripe(config.publishableKey);
-        const elements = stripe.elements(config.stripeConfiguration);
+        const elements = stripe.elements(config.elementsOptions ?? {});
 
         const group = {
             id: groupId,
@@ -17,89 +17,42 @@
             components: {}
         };
 
-        if (config.linkAuthenticationElementId) {
-            const linkAuthTarget = document.getElementById(config.linkAuthenticationElementId);
-
-            if (linkAuthTarget) {
-                const options = {};
-                if (config.customerEmail) {
-                    options.defaultValues = { email: config.customerEmail };
-                }
-
-                group.components.linkAuth = elements.create("linkAuthentication", options);
-                group.components.linkAuth.mount(linkAuthTarget);
+        // LINK AUTHENTICATION ELEMENT
+        if (config.linkAuthenticationElementId && config.linkAuthenticationOptions) {
+            const target = document.getElementById(config.linkAuthenticationElementId);
+            if (target) {
+                const element = elements.create("linkAuthentication", config.linkAuthenticationOptions);
+                element.mount(target);
+                group.components.linkAuth = element;
             }
         }
 
-        if (config.paymentElementId) {
-            const paymentTarget = document.getElementById(config.paymentElementId);
-
-            if (paymentTarget) {
-                const billingDetails = {};
-                if (config.customerEmail) billingDetails.email = config.customerEmail;
-                if (config.customerName) billingDetails.name = config.customerName;
-
-                const options = {};
-                if (Object.keys(billingDetails).length > 0) {
-                    options.defaultValues = { billingDetails };
-                }
-
-                group.components.payment = elements.create("payment", options);
-                group.components.payment.mount(paymentTarget);
+        // PAYMENT ELEMENT
+        if (config.paymentElementId && config.paymentOptions) {
+            const target = document.getElementById(config.paymentElementId);
+            if (target) {
+                const element = elements.create("payment", config.paymentOptions);
+                element.mount(target);
+                group.components.payment = element;
             }
         }
 
-        if (config.addressElementId) {
-            const addressTarget = document.getElementById(config.addressElementId);
-
-            if (addressTarget) {
-                const options = {
-                    mode: config.addressMode || "billing" // fallback to billing if not specified
-                };
-
-                // Set defaultValues if provided
-                if (config.addressDefaultValues && typeof config.addressDefaultValues === "object") {
-                    options.defaultValues = config.addressDefaultValues;
-                }
-
-                // Set allowedCountries if provided
-                if (Array.isArray(config.addressAllowedCountries) && config.addressAllowedCountries.length > 0) {
-                    options.allowedCountries = config.addressAllowedCountries;
-                }
-
-                // Set blockPoBox if provided
-                if (typeof config.addressBlockPoBox === "boolean") {
-                    options.blockPoBox = config.addressBlockPoBox;
-                }
-
-                // Set autocomplete if addressAutocompleteApiKey is provided
-                if (typeof config.addressAutocompleteApiKey === "string" && config.addressAutocompleteApiKey.length > 0) {
-                    options.autocomplete = {
-                        mode: "google_maps_api",
-                        apiKey: config.addressAutocompleteApiKey
-                    };
-                }
-
-                // Set phone field option if provided
-                if (typeof config.addressFieldsPhone === "string" && config.addressFieldsPhone.length > 0) {
-                    options.fields = {
-                        phone: config.addressFieldsPhone
-                    };
-                }
-
-                group.components.address = elements.create("address", options);
-                group.components.address.mount(addressTarget);
+        // ADDRESS ELEMENT
+        if (config.addressElementId && config.addressOptions) {
+            const target = document.getElementById(config.addressElementId);
+            if (target) {
+                const element = elements.create("address", config.addressOptions);
+                element.mount(target);
+                group.components.address = element;
             }
         }
 
         this.stripeElementsGroups.push(group);
-
         await dotNetCallback.invokeMethodAsync("OnInitializedJs");
     }
 
     async validatePayment(groupId, dotNetCallback) {
         const group = this._findGroup(groupId);
-
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for validation.`);
             return;
@@ -111,7 +64,6 @@
 
     async submitPayment(groupId, paymentIntentSecret, returnUrl, dotNetCallback) {
         const group = this._findGroup(groupId);
-
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for submission.`);
             return;
@@ -160,7 +112,6 @@
 
     createObserver(groupId, elementId) {
         const target = document.getElementById(elementId);
-
         if (!target) {
             console.warn(`Target element "${elementId}" not found for observer.`);
             return;

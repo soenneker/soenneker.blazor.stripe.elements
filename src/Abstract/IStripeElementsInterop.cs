@@ -1,8 +1,8 @@
 ﻿using Microsoft.JSInterop;
-using Soenneker.Blazor.Stripe.Elements.Configuration;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Blazor.Stripe.Elements.Configuration;
 
 namespace Soenneker.Blazor.Stripe.Elements.Abstract;
 

@@ -1,6 +1,14 @@
 ﻿@page "/second"
 @using Soenneker.Blazor.Stripe.Elements.Configuration
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Address
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Appearance
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Elements
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Initialization
+@using Soenneker.Blazor.Stripe.Elements.Configuration.LinkAuthentication
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Payment
 @using Soenneker.Blazor.Stripe.Elements.Enums
+@using Soenneker.Enums.CurrencyCodes
+@using Soenneker.Utils.AutoBogus
 
 <Container>
     <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
@@ -21,13 +29,76 @@
 
 
 @code{
+    public AutoFaker AutoFaker { get; set; } = new();
 
-    private readonly StripeElementsConfiguration _config = new()
+    private StripeElementsConfiguration? _config;
+
+    protected override void OnInitialized()
     {
-        CustomerEmail = "blah@gmail.com",
-        CustomerName = "Test Test",
-        PublishableKey = "",
-        StripeJsConfiguration = new StripeJsConfiguration {Currency = "usd", Amount = 100, Mode = StripeElementsMode.Payment}
-    };
+        _config = new StripeElementsConfiguration
+        {
+            PublishableKey = "",
+
+            InitializationOptions = new StripeInitializationOptions
+            {
+                DeveloperTools = new StripeDeveloperToolsOptions
+                {
+                    Assistant = new StripeDeveloperAssistantOptions
+                    {
+                        Enabled = true
+                    }
+                }
+            },
+
+            ElementsOptions = new StripeElementsOptions
+            {
+                Appearance = new StripeAppearance
+                {
+                    Theme = StripeElementsTheme.Flat,
+                    Variables = new StripeAppearanceVariablesExtended {BorderRadius = "0"}
+                },
+                Locale = "auto",
+                Mode = StripeElementsMode.Setup,
+                Currency = CurrencyCode.Usd
+            },
+
+            LinkAuthenticationOptions = new StripeLinkAuthenticationOptions
+            {
+                DefaultValues = new StripeLinkAuthenticationDefaultValues
+                {
+                    Email = "test@example.com"
+                },
+            },
+            PaymentOptions = new StripePaymentElementOptions
+            {
+                Layout = "tabs"
+            },
+            AddressOptions = new StripeAddressOptions
+            {
+                Mode = StripeAddressMode.Billing,
+                DefaultValues = new StripeAddressDefaultValues
+                {
+                    Name = AutoFaker.Faker.Person.FullName,
+                    Address = new StripeAddressDetails
+                    {
+                        Line1 = AutoFaker.Faker.Address.StreetAddress(),
+                        City = AutoFaker.Faker.Address.City(),
+                        State = AutoFaker.Faker.Address.State(),
+                        Country = "US"
+                    }
+                },
+                AllowedCountries =
+                [
+                    "US",
+                    "CA"
+                ],
+                Fields = new StripeAddressFields
+                {
+                    Phone = StripeAddressFieldsPhoneOption.Auto
+                }
+            }
+        };
+    }
+
 
 }

@@ -6,6 +6,8 @@
 @using Soenneker.Dtos.Stripe.Error
 @using Soenneker.Extensions.Task
 @using Soenneker.Extensions.ValueTask
+@using Soenneker.Blazor.Extensions.EventCallback
+
 @inject IStripeElementsInterop StripeElementsInterop
 @inject ILogger<StripeElements> Logger
 
@@ -103,23 +105,22 @@
             throw new Exception("Stripe Elements has not been initialized yet.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        await StripeElementsInterop.ValidatePayment(ElementId, _dotNetReference!, linkedCts.Token);
+        await StripeElementsInterop.ValidatePayment(ElementId, _dotNetReference!, linkedCts.Token).NoSync();
     }
 
-    public ValueTask SubmitPayment(string paymentIntent, string returnUrl, CancellationToken cancellationToken = default)
+    public async ValueTask SubmitPayment(string paymentIntent, string returnUrl, CancellationToken cancellationToken = default)
     {
         if (!_initialized)
             throw new Exception("Stripe Elements has not been initialized yet.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        return StripeElementsInterop.SubmitPayment(ElementId, paymentIntent, returnUrl, _dotNetReference!, linkedCts.Token);
+        await StripeElementsInterop.SubmitPayment(ElementId, paymentIntent, returnUrl, _dotNetReference!, linkedCts.Token).NoSync();
     }
 
     [JSInvokable("OnInitializedJs")]
     public async Task OnInitializedJs()
     {
-        if (OnInitialize.HasDelegate)
-            await OnInitialize.InvokeAsync().NoSync();
+        await OnInitialize.InvokeIfHasDelegate().NoSync();
     }
 
     [JSInvokable("OnValidatePaymentJs")]

@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Description>A Blazor interop library for Stripe Elements</Description>
+        <Description>A modular, strongly-typed Blazor library for Stripe Elements</Description>
         <Version Condition="'$(BUILD_VERSION)' == ''">3.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.Blazor.Stripe.Elements</AssemblyName>
@@ -45,8 +45,10 @@
     <ItemGroup>
         <PackageReference Include="Intellenum" Version="1.0.6" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.4" />
+        <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="3.0.408" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="3.0.3586" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="3.0.1437" />
         <PackageReference Include="Soenneker.Dtos.Stripe.Error" Version="3.0.40" />
+        <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="3.0.1" />
     </ItemGroup>
 </Project>

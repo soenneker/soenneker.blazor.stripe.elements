@@ -1,43 +1,113 @@
 ﻿@page "/"
+
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.Stripe.Elements.Configuration
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Address
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Appearance
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Elements
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Initialization
+@using Soenneker.Blazor.Stripe.Elements.Configuration.LinkAuthentication
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Payment
 @using Soenneker.Blazor.Stripe.Elements.Enums
 @using Soenneker.Dtos.Stripe.Error
+@using Soenneker.Enums.CurrencyCodes
+@using Soenneker.Utils.AutoBogus
+
 @inject ILogger<Index> Logger
 
-<Container>
-    <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
-    <h1>Soenneker.Blazor.Stripe.Elements demo</h1>
-    <p>This page demonstrates some of the common usages for the interop library.</p>
+<Container class="py-5" >
+    <div class="text-center mb-4" >
+        <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" style="height: 60px;" />
+        <h1 class="mt-3 fw-semibold" >Stripe Elements Demo</h1>
+        <p class="text-muted" >A clean integration demo of Soenneker.Blazor.Stripe.Elements</p>
+    </div>
 
-    <StripeElements @ref="_stripeElements" StripeElementsConfiguration="_config" OnSubmitPayment="StripeSubmitPaymentCallback" OnValidatePayment="StripeValidatePaymentCallback" >
-        <Label>Amount</Label>
-        <NumericPicker CurrencySymbol="$" TValue="decimal?" Value="_amount" CurrencySymbolPlacement="CurrencySymbolPlacement.Prefix" Placeholder="$1.00" Max="10000000" EnableStep="false" Size="Size.Small" >
-        </NumericPicker>
-        <StripeAddressElement></StripeAddressElement>
-        <StripeLinkAuthenticationElement></StripeLinkAuthenticationElement>
-        <StripePaymentElement></StripePaymentElement>
+    <StripeElements @ref="_stripeElements"
+                    StripeElementsConfiguration="_config"
+                    OnSubmitPayment="StripeSubmitPaymentCallback"
+                    OnValidatePayment="StripeValidatePaymentCallback" >
+
+        <StripeAddressElement />
+        <StripeLinkAuthenticationElement />
+        <StripePaymentElement />
+
         <Button Loading="_buttonLoading" Color="Color.Primary" Clicked="Submit" >Submit</Button>
     </StripeElements>
 
-    <br />
-    <hr />
-    <Anchor To="/second" >Go to second</Anchor>
+    <div class="mt-4 pt-3 border-top" >
+        <Anchor To="/second" >Go to second</Anchor>
+    </div>
 </Container>
 
-@code{
-    StripeElements? _stripeElements;
-    bool _buttonLoading;
+@code {
+    private StripeElements? _stripeElements;
+    private bool _buttonLoading;
+    private StripeElementsConfiguration? _config;
 
-    decimal _amount;
+    public AutoFaker AutoFaker { get; set; } = new();
 
-    private readonly StripeElementsConfiguration _config = new()
+    protected override void OnInitialized()
     {
-        CustomerEmail = "blah@gmail.com",
-        CustomerName = "Test Test",
-        PublishableKey = "",
-        StripeJsConfiguration = new StripeJsConfiguration {Currency = "usd", Amount = 100, Mode = StripeElementsMode.Payment}
-    };
+        _config = new StripeElementsConfiguration
+            {
+                PublishableKey = "",
+
+                InitializationOptions = new StripeInitializationOptions
+                {
+                    DeveloperTools = new StripeDeveloperToolsOptions
+                    {
+                        Assistant = new StripeDeveloperAssistantOptions { Enabled = true }
+                    }
+                },
+
+                ElementsOptions = new StripeElementsOptions
+                {
+                    Appearance = new StripeAppearance
+                    {
+                        Theme = StripeElementsTheme.Flat,
+                        Variables = new StripeAppearanceVariablesExtended { BorderRadius = "0" }
+                    },
+                    Locale = "auto",
+                    Mode = StripeElementsMode.Setup,
+                    Currency = CurrencyCode.Usd
+                },
+
+                LinkAuthenticationOptions = new StripeLinkAuthenticationOptions
+                {
+                    DefaultValues = new StripeLinkAuthenticationDefaultValues
+                    {
+                        Email = "test@example.com"
+                    }
+                },
+
+                PaymentOptions = new StripePaymentElementOptions
+                {
+                    Layout = "tabs"
+                },
+
+                AddressOptions = new StripeAddressOptions
+                {
+                    Mode = StripeAddressMode.Billing,
+                    DefaultValues = new StripeAddressDefaultValues
+                    {
+                        Name = AutoFaker.Faker.Person.FullName,
+                        Address = new StripeAddressDetails
+                        {
+                            Line1 = AutoFaker.Faker.Address.StreetAddress(),
+                            City = AutoFaker.Faker.Address.City(),
+                            State = AutoFaker.Faker.Address.State(),
+                            Country = "US",
+                            PostalCode = AutoFaker.Faker.Address.ZipCode()
+                        }
+                    },
+                    AllowedCountries = ["US", "CA"],
+                    Fields = new StripeAddressFields
+                    {
+                        Phone = StripeAddressFieldsPhoneOption.Auto
+                    }
+                }
+            };
+    }
 
     private async Task Submit()
     {
@@ -77,7 +147,6 @@
         {
             _buttonLoading = false;
             StateHasChanged();
-            return;
         }
     }
 
