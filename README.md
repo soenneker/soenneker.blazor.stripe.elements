@@ -16,6 +16,8 @@
 * 💬 Built-in callback support for validation and error responses
 * 🔄 Seamless async interop with Stripe.js lifecycle
 
+<img src="https://github.com/user-attachments/assets/a2f8777a-02e0-40de-afd6-fe4d1211427b" width="80%"></img>
+
 ## 📦 Installation
 
 ```bash
@@ -75,8 +77,7 @@ _config = new StripeElementsConfiguration
         AllowedCountries = ["US", "CA"],
         Fields = new StripeAddressFields
         {
-            Phone = StripeAddressFieldsPhoneOption.Auto,
-            PostalCode = StripeAddressFieldsPostalCodeOption.Never
+            Phone = StripeAddressFieldsPhoneOption.Auto
         }
     }
 };
