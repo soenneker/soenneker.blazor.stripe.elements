@@ -112,7 +112,7 @@ public async Task HandleStripeSubmit(StripeErrorDto? error) { ... }
 ---
 
 
-## 🔗 Official Stripe Docs (Updated)
+## 🔗 Official Stripe Docs
 
 * 🌐 [Stripe Elements Overview](https://docs.stripe.com/elements)
 * ⚙️ [Elements JavaScript API Reference](https://docs.stripe.com/js/element)
