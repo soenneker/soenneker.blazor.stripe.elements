@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Soenneker.Blazor.Stripe.Elements.Enums;
 
 namespace Soenneker.Blazor.Stripe.Elements.Configuration.Appearance;
@@ -24,11 +25,11 @@ public sealed class StripeAppearance
     /// CSS variables used to customize the appearance.
     /// </summary>
     [JsonPropertyName("variables")]
-    public StripeAppearanceVariables? Variables { get; set; }
+    public Dictionary<string, string>? Variables { get; set; }
 
     /// <summary>
     /// CSS rules that target specific Elements components.
     /// </summary>
     [JsonPropertyName("rules")]
-    public StripeAppearanceRules? Rules { get; set; }
+    public Dictionary<string, Dictionary<string, string>>? Rules { get; set; }
 }
