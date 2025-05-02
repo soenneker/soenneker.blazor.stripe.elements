@@ -65,7 +65,7 @@
                     Appearance = new StripeAppearance
                     {
                         Theme = StripeElementsTheme.Flat,
-                        Variables = new StripeAppearanceVariablesExtended { BorderRadius = "0" }
+                        Variables = new StripeAppearanceVariables() { ["borderRadius"] = "0px", }
                     },
                     Locale = "auto",
                     Mode = StripeElementsMode.Setup,

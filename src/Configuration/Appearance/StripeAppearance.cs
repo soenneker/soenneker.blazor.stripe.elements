@@ -21,14 +21,14 @@ public sealed class StripeAppearance
     public StripeLabelsMode? Labels { get; set; }
 
     /// <summary>
-    /// Common CSS-like variables used to customize the appearance.
+    /// CSS variables used to customize the appearance.
     /// </summary>
     [JsonPropertyName("variables")]
-    public StripeAppearanceVariablesExtended? Variables { get; set; }
+    public StripeAppearanceVariables? Variables { get; set; }
 
     /// <summary>
-    /// CSS-like rules that target specific Elements components.
+    /// CSS rules that target specific Elements components.
     /// </summary>
     [JsonPropertyName("rules")]
-    public StripeAppearanceRulesExtended? Rules { get; set; }
+    public StripeAppearanceRules? Rules { get; set; }
 }
