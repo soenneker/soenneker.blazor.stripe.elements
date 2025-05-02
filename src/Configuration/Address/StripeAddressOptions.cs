@@ -61,4 +61,10 @@ public class StripeAddressOptions
     /// </summary>
     [JsonPropertyName("display")]
     public StripeAddressDisplay? Display { get; set; }
+
+    /// <summary>
+    /// CSS-like styling rules for the Address Element (base, invalid, etc).
+    /// </summary>
+    [JsonPropertyName("style")]
+    public StripeElementStyle? Style { get; set; }
 }

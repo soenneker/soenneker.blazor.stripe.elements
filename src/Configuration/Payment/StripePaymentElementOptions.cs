@@ -61,4 +61,10 @@ public sealed class StripePaymentElementOptions
     /// </summary>
     [JsonPropertyName("applePay")]
     public StripeApplePayOptions? ApplePay { get; set; }
+
+    /// <summary>
+    /// CSS-like styling rules for the Address Element (base, invalid, etc).
+    /// </summary>
+    [JsonPropertyName("style")]
+    public StripeElementStyle? Style { get; set; }
 }
