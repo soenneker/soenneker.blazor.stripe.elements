@@ -56,7 +56,7 @@ public sealed class StripeElementsOptions
     /// Determines the capture method for the payment: 'automatic', 'automatic_async', or 'manual'.
     /// </summary>
     [JsonPropertyName("captureMethod")]
-    public StripeElementsCaptureMethod CaptureMethod { get; set; } = StripeElementsCaptureMethod.Automatic;
+    public StripeElementsCaptureMethod? CaptureMethod { get; set; }
 
     /// <summary>
     /// The Stripe account ID the payment is made on behalf of (Connect only).
