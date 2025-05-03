@@ -70,7 +70,7 @@
             },
             PaymentOptions = new StripePaymentElementOptions
             {
-                Layout = "tabs"
+                Layout = new StripePaymentElementLayout {Type = StripePaymentElementLayoutType.Tabs}
             },
             AddressOptions = new StripeAddressOptions
             {

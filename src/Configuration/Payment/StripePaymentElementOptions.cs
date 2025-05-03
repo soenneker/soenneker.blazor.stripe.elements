@@ -12,13 +12,13 @@ public sealed class StripePaymentElementOptions
     /// Layout configuration for the Payment Element. Accepts 'accordion', 'tabs', or a custom layout object.
     /// </summary>
     [JsonPropertyName("layout")]
-    public object? Layout { get; set; }
+    public StripePaymentElementLayout? Layout { get; set; }
 
     /// <summary>
     /// Initial customer values such as email, name, phone.
     /// </summary>
     [JsonPropertyName("defaultValues")]
-    public StripeDefaultCustomerValues? DefaultValues { get; set; }
+    public StripePaymentElementDefaultValues? DefaultValues { get; set; }
 
     /// <summary>
     /// Business information such as name used for mandate text.

@@ -49,64 +49,64 @@
     protected override void OnInitialized()
     {
         _config = new StripeElementsConfiguration
+        {
+            PublishableKey = "",
+
+            InitializationOptions = new StripeInitializationOptions
             {
-                PublishableKey = "",
-
-                InitializationOptions = new StripeInitializationOptions
+                DeveloperTools = new StripeDeveloperToolsOptions
                 {
-                    DeveloperTools = new StripeDeveloperToolsOptions
-                    {
-                        Assistant = new StripeDeveloperAssistantOptions { Enabled = true }
-                    }
-                },
-
-                ElementsOptions = new StripeElementsOptions
-                {
-                    Appearance = new StripeAppearance
-                    {
-                        Theme = StripeElementsTheme.Flat,
-                        Variables = new Dictionary<string, string> { ["borderRadius"] = "0px", }
-                    },
-                    Locale = "auto",
-                    Mode = StripeElementsMode.Setup,
-                    Currency = CurrencyCode.Usd
-                },
-
-                LinkAuthenticationOptions = new StripeLinkAuthenticationOptions
-                {
-                    DefaultValues = new StripeLinkAuthenticationDefaultValues
-                    {
-                        Email = "test@example.com"
-                    }
-                },
-
-                PaymentOptions = new StripePaymentElementOptions
-                {
-                    Layout = "tabs"
-                },
-
-                AddressOptions = new StripeAddressOptions
-                {
-                    Mode = StripeAddressMode.Billing,
-                    DefaultValues = new StripeAddressDefaultValues
-                    {
-                        Name = AutoFaker.Faker.Person.FullName,
-                        Address = new StripeAddressDetails
-                        {
-                            Line1 = AutoFaker.Faker.Address.StreetAddress(),
-                            City = AutoFaker.Faker.Address.City(),
-                            State = AutoFaker.Faker.Address.State(),
-                            Country = "US",
-                            PostalCode = AutoFaker.Faker.Address.ZipCode()
-                        }
-                    },
-                    AllowedCountries = ["US", "CA"],
-                    Fields = new StripeAddressFields
-                    {
-                        Phone = StripeAddressFieldsPhoneOption.Auto
-                    }
+                    Assistant = new StripeDeveloperAssistantOptions {Enabled = true}
                 }
-            };
+            },
+
+            ElementsOptions = new StripeElementsOptions
+            {
+                Appearance = new StripeAppearance
+                {
+                    Theme = StripeElementsTheme.Flat,
+                    Variables = new Dictionary<string, string> {["borderRadius"] = "0px",}
+                },
+                Locale = "auto",
+                Mode = StripeElementsMode.Setup,
+                Currency = CurrencyCode.Usd
+            },
+
+            LinkAuthenticationOptions = new StripeLinkAuthenticationOptions
+            {
+                DefaultValues = new StripeLinkAuthenticationDefaultValues
+                {
+                    Email = "test@example.com"
+                }
+            },
+
+            PaymentOptions = new StripePaymentElementOptions
+            {
+                Layout = new StripePaymentElementLayout {Type = StripePaymentElementLayoutType.Tabs}
+            },
+
+            AddressOptions = new StripeAddressOptions
+            {
+                Mode = StripeAddressMode.Billing,
+                DefaultValues = new StripeAddressDefaultValues
+                {
+                    Name = AutoFaker.Faker.Person.FullName,
+                    Address = new StripeAddressDetails
+                    {
+                        Line1 = AutoFaker.Faker.Address.StreetAddress(),
+                        City = AutoFaker.Faker.Address.City(),
+                        State = AutoFaker.Faker.Address.State(),
+                        Country = "US",
+                        PostalCode = AutoFaker.Faker.Address.ZipCode()
+                    }
+                },
+                AllowedCountries = ["US", "CA"],
+                Fields = new StripeAddressFields
+                {
+                    Phone = StripeAddressFieldsPhoneOption.Auto
+                }
+            }
+        };
     }
 
     private async Task Submit()
