@@ -1,4 +1,5 @@
 ﻿using Soenneker.Blazor.Stripe.Elements.Configuration;
+using Soenneker.Blazor.Stripe.Elements.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -27,7 +28,7 @@ public interface IStripeElements : IAsyncDisposable
     /// Validates the Stripe Elements input fields (used for PaymentIntents only).
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the validation.</param>
-    ValueTask ValidatePayment(CancellationToken cancellationToken = default);
+    ValueTask<StripeValidationResult?> ValidatePayment(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a PaymentIntent using the mounted Stripe Elements group.
@@ -36,7 +37,7 @@ public interface IStripeElements : IAsyncDisposable
     /// <param name="returnUrl">The return URL to redirect to after confirmation.</param>
     /// <param name="paymentIntentClientSecret">Optional: The client secret for the PaymentIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    ValueTask ConfirmPayment(string returnUrl, string? paymentIntentClientSecret = null, CancellationToken cancellationToken = default);
+    ValueTask<StripeConfirmResult?> ConfirmPayment(string returnUrl, string? paymentIntentClientSecret = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a SetupIntent using the mounted Stripe Elements group.
@@ -45,7 +46,7 @@ public interface IStripeElements : IAsyncDisposable
     /// <param name="returnUrl">The return URL to redirect to after confirmation.</param>
     /// <param name="setupIntentClientSecret">Optional: The client secret for the SetupIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    ValueTask ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default);
+    ValueTask<StripeConfirmResult?> ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Unmounts the current Stripe Elements instance and cleans up resources.

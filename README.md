@@ -13,7 +13,6 @@
 * 🎨 **Appearance API support** with extensible theming and rule control
 * 📦 **Supports SetupIntents**, on-submit hooks, and validation workflows
 * 🧪 Compatible with Stripe test environments and developer tooling
-* 💬 Built-in callback support for validation and error responses
 * 🔄 Seamless async interop with Stripe.js lifecycle
 
 <img src="https://github.com/user-attachments/assets/a2f8777a-02e0-40de-afd6-fe4d1211427b" width="80%"></img>
@@ -37,10 +36,7 @@ builder.Services.AddStripeElementsInteropAsScoped();
 ### 2. Add the components to your Razor page
 
 ```razor
-<StripeElements @ref="_stripeElements"
-                StripeElementsConfiguration="_config"
-                OnSubmitPayment="HandleStripeSubmit"
-                OnValidatePayment="HandleStripeValidate">
+<StripeElements @ref="_stripeElements" StripeElementsConfiguration="_config">
 
     <StripeAddressElement />
     <StripeLinkAuthenticationElement />
@@ -96,21 +92,6 @@ _config = new StripeElementsConfiguration
 | `StripeElementsConfiguration`     | Full C# model to control everything        |
 
 ---
-
-## 🔄 Event Callbacks
-
-| Event               | Description                                                                |
-| ------------------- | -------------------------------------------------------------------------- |
-| `OnValidatePayment` | Triggered before attempting to submit a payment (for preflight validation) |
-| `OnSubmitPayment`   | Triggered after attempting to submit the payment intent or method          |
-
-```csharp
-public async Task HandleStripeValidate(StripeErrorDto? error) { ... }
-public async Task HandleStripeSubmit(StripeErrorDto? error) { ... }
-```
-
----
-
 
 ## 🔗 Official Stripe Docs
 

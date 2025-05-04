@@ -58,18 +58,17 @@
             return;
         }
 
-        const result = await group.elements.submit();
-        await dotNetCallback.invokeMethodAsync("OnValidatePaymentJs", result.error);
+        return await group.elements.submit();
     }
 
-    async confirmPayment(groupId, clientSecret, returnUrl, dotNetCallback) {
+    async confirmPayment(groupId, clientSecret, returnUrl) {
         const group = this._findGroup(groupId);
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for confirmPayment.`);
             return;
         }
 
-        const result = await group.stripe.confirmPayment({
+       return await group.stripe.confirmPayment({
             clientSecret,
             elements: group.elements,
             confirmParams: {
@@ -77,18 +76,16 @@
             },
             redirect: "if_required"
         });
-
-        await dotNetCallback.invokeMethodAsync("OnSubmitPaymentJs", result.error);
     }
 
-    async confirmSetup(groupId, clientSecret, returnUrl, dotNetCallback) {
+    async confirmSetup(groupId, clientSecret, returnUrl) {
         const group = this._findGroup(groupId);
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for confirmSetup.`);
             return;
         }
 
-        const result = await group.stripe.confirmSetup({
+        return await group.stripe.confirmSetup({
             clientSecret,
             elements: group.elements,
             confirmParams: {
@@ -96,8 +93,6 @@
             },
             redirect: "if_required"
         });
-
-        await dotNetCallback.invokeMethodAsync("OnSubmitSetupJs", result.error);
     }
 
     unmountGroup(groupId) {

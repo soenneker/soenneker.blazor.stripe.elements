@@ -22,11 +22,7 @@
         <p class="text-muted" >A clean integration demo of Soenneker.Blazor.Stripe.Elements</p>
     </div>
 
-    <StripeElements @ref="_stripeElements"
-                    Configuration="_config"
-                    OnSubmitPayment="StripeSubmitPaymentCallback"
-                    OnValidatePayment="StripeValidatePaymentCallback" >
-
+    <StripeElements @ref="_stripeElements" Configuration="_config" >
         <StripeAddressElement />
         <StripeLinkAuthenticationElement />
         <StripePaymentElement />

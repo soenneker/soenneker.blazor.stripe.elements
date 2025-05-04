@@ -8,11 +8,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
+using Soenneker.Blazor.Stripe.Elements.Dtos;
 
 namespace Soenneker.Blazor.Stripe.Elements;
 
 /// <inheritdoc cref="IStripeElementsInterop"/>
-public class StripeElementsInterop : IStripeElementsInterop
+public sealed class StripeElementsInterop : IStripeElementsInterop
 {
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncSingleton _stripeJsInitializer;
@@ -66,21 +67,22 @@ public class StripeElementsInterop : IStripeElementsInterop
         await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementId, json, dotNetObjectRef).NoSync();
     }
 
-    public ValueTask ValidatePayment(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef, CancellationToken cancellationToken = default)
+    public ValueTask<StripeValidationResult?> ValidatePayment(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.validatePayment", cancellationToken, elementId, dotNetObjectRef);
+        return _jsRuntime.InvokeAsync<StripeValidationResult?>($"{_moduleName}.validatePayment", cancellationToken, elementId);
     }
 
-    public ValueTask ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl, DotNetObjectReference<StripeElements> dotNetObjectRef,
+    public ValueTask<StripeConfirmResult?> ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.confirmPayment", cancellationToken, elementId, paymentIntentClientSecret, returnUrl, dotNetObjectRef);
+        return _jsRuntime.InvokeAsync<StripeConfirmResult?>($"{_moduleName}.confirmPayment", cancellationToken, elementId, paymentIntentClientSecret,
+            returnUrl);
     }
 
-    public ValueTask ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl, DotNetObjectReference<StripeElements> dotNetObjectRef,
+    public ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.confirmSetup", cancellationToken, elementId, setupIntentClientSecret, returnUrl, dotNetObjectRef);
+        return _jsRuntime.InvokeAsync<StripeConfirmResult?>($"{_moduleName}.confirmSetup", cancellationToken, elementId, setupIntentClientSecret, returnUrl);
     }
 
     public ValueTask Unmount(string elementId, CancellationToken cancellationToken = default)
