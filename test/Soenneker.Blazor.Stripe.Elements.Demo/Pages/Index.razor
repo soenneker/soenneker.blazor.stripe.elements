@@ -23,7 +23,7 @@
     </div>
 
     <StripeElements @ref="_stripeElements"
-                    StripeElementsConfiguration="_config"
+                    Configuration="_config"
                     OnSubmitPayment="StripeSubmitPaymentCallback"
                     OnValidatePayment="StripeValidatePaymentCallback" >
 
@@ -133,12 +133,12 @@
             return;
         }
 
-        await SubmitPaymentIntent();
+        await ConfirmPayment();
     }
 
-    private async Task SubmitPaymentIntent()
+    private async Task ConfirmPayment()
     {
-        await _stripeElements!.SubmitPayment("intent", "https://localhost:7039");
+        await _stripeElements!.ConfirmPayment("intent", "https://localhost:7039");
     }
 
     public async Task StripeSubmitPaymentCallback(StripeErrorDto? stripeErrorDto)

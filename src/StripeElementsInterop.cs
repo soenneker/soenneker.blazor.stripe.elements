@@ -31,16 +31,13 @@ public class StripeElementsInterop : IStripeElementsInterop
         _stripeJsInitializer = new AsyncSingleton(async (token, _) =>
         {
             await _resourceLoader.LoadScript("https://js.stripe.com/v3/", async: true, cancellationToken: token).NoSync();
-
             return new object();
         });
 
         _scriptInitializer = new AsyncSingleton(async (token, _) =>
         {
             await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token).NoSync();
-
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token).NoSync();
-
             return new object();
         });
     }
@@ -65,9 +62,7 @@ public class StripeElementsInterop : IStripeElementsInterop
         CancellationToken cancellationToken = default)
     {
         await _scriptInitializer.Init(cancellationToken).NoSync();
-
         string? json = JsonUtil.Serialize(elementsConfiguration);
-
         await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementId, json, dotNetObjectRef).NoSync();
     }
 
@@ -76,18 +71,27 @@ public class StripeElementsInterop : IStripeElementsInterop
         return _jsRuntime.InvokeVoidAsync($"{_moduleName}.validatePayment", cancellationToken, elementId, dotNetObjectRef);
     }
 
-    public ValueTask SubmitPayment(string elementId, string paymentIntent, string returnUrl, DotNetObjectReference<StripeElements> dotNetObjectRef,
+    public ValueTask ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl, DotNetObjectReference<StripeElements> dotNetObjectRef,
         CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.submitPayment", cancellationToken, elementId, paymentIntent, returnUrl, dotNetObjectRef);
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.confirmPayment", cancellationToken, elementId, paymentIntentClientSecret, returnUrl, dotNetObjectRef);
+    }
+
+    public ValueTask ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl, DotNetObjectReference<StripeElements> dotNetObjectRef,
+        CancellationToken cancellationToken = default)
+    {
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.confirmSetup", cancellationToken, elementId, setupIntentClientSecret, returnUrl, dotNetObjectRef);
+    }
+
+    public ValueTask Unmount(string elementId, CancellationToken cancellationToken = default)
+    {
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmountGroup", cancellationToken, elementId);
     }
 
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
-
         await _resourceLoader.DisposeModule(_module).NoSync();
-
         await _scriptInitializer.DisposeAsync().NoSync();
     }
 }

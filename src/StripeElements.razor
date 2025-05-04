@@ -11,10 +11,10 @@
 @inject IStripeElementsInterop StripeElementsInterop
 @inject ILogger<StripeElements> Logger
 
-@implements IAsyncDisposable
+@implements IStripeElements
 
 <div id="@ElementId" @attributes="Attributes" >
-    <CascadingValue Value="_elementIds" >
+    <CascadingValue Value="ElementIds">
         @ChildContent
     </CascadingValue>
 </div>
@@ -36,19 +36,22 @@
     [Parameter]
     public EventCallback<StripeErrorDto?> OnSubmitPayment { get; set; }
 
-    public readonly string ElementId = $"stripe-elements-{Guid.NewGuid().ToString()}";
+    [Parameter]
+    public EventCallback<StripeErrorDto?> OnSubmitSetup { get; set; }
+
+    public string ElementId { get; set; } = $"stripe-elements-{Guid.NewGuid()}";
 
     private readonly CancellationTokenSource _cTs = new();
 
     private DotNetObjectReference<StripeElements>? _dotNetReference;
 
     [Parameter]
-    public StripeElementsConfiguration? StripeElementsConfiguration { get; set; }
+    public StripeElementsConfiguration? Configuration { get; set; }
 
     [Parameter]
     public bool Log { get; set; }
 
-    private readonly Dictionary<Type, string> _elementIds = new()
+    public Dictionary<Type, string> ElementIds { get; set; } = new()
     {
         {typeof(StripeAddressElement), $"stripe-address-{Guid.NewGuid()}"},
         {typeof(StripeLinkAuthenticationElement), $"stripe-link-auth-{Guid.NewGuid()}"},
@@ -66,7 +69,7 @@
     {
         if (firstRender)
         {
-            await Initialize(cancellationToken: _cTs.Token).NoSync();
+            await Initialize(null, _cTs.Token).NoSync();
         }
     }
 
@@ -75,19 +78,26 @@
         _initialized = true;
 
         if (configuration != null)
-            StripeElementsConfiguration = configuration;
+            Configuration = configuration;
 
-        if (StripeElementsConfiguration == null)
+        if (Configuration == null)
         {
             if (Log)
-                Logger.LogError("StripeElementsConfiguration is required, exiting initialization");
+                Logger.LogError("Configuration is required, exiting initialization");
 
             return;
         }
 
-        StripeElementsConfiguration.AddressElementId ??= _elementIds[typeof(StripeAddressElement)];
-        StripeElementsConfiguration.LinkAuthenticationElementId ??= _elementIds[typeof(StripeLinkAuthenticationElement)];
-        StripeElementsConfiguration.PaymentElementId ??= _elementIds[typeof(StripePaymentElement)];
+        if (Configuration.AddressElementId == null)
+            ElementIds[typeof(StripeAddressElement)] = $"stripe-address-{Guid.NewGuid()}";
+        if (Configuration.LinkAuthenticationElementId == null)
+            ElementIds[typeof(StripeLinkAuthenticationElement)] = $"stripe-link-auth-{Guid.NewGuid()}";
+        if (Configuration.PaymentElementId == null)
+            ElementIds[typeof(StripePaymentElement)] = $"stripe-payment-{Guid.NewGuid()}";
+
+        Configuration.AddressElementId ??= ElementIds[typeof(StripeAddressElement)];
+        Configuration.LinkAuthenticationElementId ??= ElementIds[typeof(StripeLinkAuthenticationElement)];
+        Configuration.PaymentElementId ??= ElementIds[typeof(StripePaymentElement)];
 
         _dotNetReference = DotNetObjectReference.Create(this);
 
@@ -95,26 +105,44 @@
 
         CancellationToken token = linkedCts?.Token ?? _cTs.Token;
 
-        await StripeElementsInterop.Create(ElementId, _dotNetReference, StripeElementsConfiguration, token).NoSync();
+        await StripeElementsInterop.Create(ElementId, _dotNetReference, Configuration, token).NoSync();
         await StripeElementsInterop.CreateObserver(ElementId, token).NoSync();
     }
 
     public async ValueTask ValidatePayment(CancellationToken cancellationToken = default)
     {
         if (!_initialized)
-            throw new Exception("Stripe Elements has not been initialized yet.");
+            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         await StripeElementsInterop.ValidatePayment(ElementId, _dotNetReference!, linkedCts.Token).NoSync();
     }
 
-    public async ValueTask SubmitPayment(string paymentIntent, string returnUrl, CancellationToken cancellationToken = default)
+    public async ValueTask ConfirmPayment(string paymentIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default)
     {
         if (!_initialized)
-            throw new Exception("Stripe Elements has not been initialized yet.");
+            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        await StripeElementsInterop.SubmitPayment(ElementId, paymentIntent, returnUrl, _dotNetReference!, linkedCts.Token).NoSync();
+        await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, _dotNetReference!, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask ConfirmSetup(string setupIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, _dotNetReference!, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Unmount(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await StripeElementsInterop.Unmount(ElementId, linkedCts.Token).NoSync();
     }
 
     [JSInvokable("OnInitializedJs")]
@@ -135,6 +163,13 @@
     {
         if (OnSubmitPayment.HasDelegate)
             await OnSubmitPayment.InvokeAsync(error).NoSync();
+    }
+
+    [JSInvokable("OnSubmitSetupJs")]
+    public async Task OnSubmitSetupJs(StripeErrorDto? error)
+    {
+        if (OnSubmitSetup.HasDelegate)
+            await OnSubmitSetup.InvokeAsync(error).NoSync();
     }
 
     public async ValueTask DisposeAsync()
