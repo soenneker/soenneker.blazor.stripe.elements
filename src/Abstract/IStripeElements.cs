@@ -31,19 +31,21 @@ public interface IStripeElements : IAsyncDisposable
 
     /// <summary>
     /// Confirms a PaymentIntent using the mounted Stripe Elements group.
+    /// Uses the configured client secret if not explicitly provided.
     /// </summary>
-    /// <param name="paymentIntentClientSecret">The client secret for the PaymentIntent.</param>
     /// <param name="returnUrl">The return URL to redirect to after confirmation.</param>
+    /// <param name="paymentIntentClientSecret">Optional: The client secret for the PaymentIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    ValueTask ConfirmPayment(string paymentIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default);
+    ValueTask ConfirmPayment(string returnUrl, string? paymentIntentClientSecret = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a SetupIntent using the mounted Stripe Elements group.
+    /// Uses the configured client secret if not explicitly provided.
     /// </summary>
-    /// <param name="setupIntentClientSecret">The client secret for the SetupIntent.</param>
     /// <param name="returnUrl">The return URL to redirect to after confirmation.</param>
+    /// <param name="setupIntentClientSecret">Optional: The client secret for the SetupIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    ValueTask ConfirmSetup(string setupIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default);
+    ValueTask ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Unmounts the current Stripe Elements instance and cleans up resources.
