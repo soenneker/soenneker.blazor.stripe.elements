@@ -64,6 +64,8 @@ public interface IStripeElementsInterop : IAsyncDisposable
     /// <returns>A task representing the asynchronous operation, returning the full Stripe confirmation result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default);
 
+    ValueTask<StripeSubmitResult?> Submit(string elementId, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Confirms a Stripe SetupIntent using the mounted Stripe Payment Element and returns the result.
     /// This method uses Stripe.js to handle 3D Secure if required and returns the full result object.

@@ -79,6 +79,11 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
             returnUrl);
     }
 
+    public ValueTask<StripeSubmitResult?> Submit(string elementId, CancellationToken cancellationToken = default)
+    {
+        return _jsRuntime.InvokeAsync<StripeSubmitResult?>($"{_moduleName}.submit", cancellationToken, elementId);
+    }
+
     public ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {

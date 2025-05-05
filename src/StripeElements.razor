@@ -140,6 +140,15 @@
         return await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linkedCts.Token);
     }
 
+    public async ValueTask<StripeSubmitResult?> Submit(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        return await StripeElementsInterop.Submit(ElementId, linkedCts.Token).NoSync();
+    }
+
     public async ValueTask Unmount(CancellationToken cancellationToken = default)
     {
         if (!_initialized)

@@ -40,6 +40,14 @@ public interface IStripeElements : IAsyncDisposable
     ValueTask<StripeConfirmResult?> ConfirmPayment(string returnUrl, string? paymentIntentClientSecret = null, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Submits the Stripe Elements group, triggering client-side validation and preparing for confirmation.
+    /// This is required for deferred flows and must be called before <c>ConfirmSetup</c> or <c>ConfirmPayment</c>.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A result object containing a possible validation error.</returns>
+    ValueTask<StripeSubmitResult?> Submit(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Confirms a SetupIntent using the mounted Stripe Elements group.
     /// Uses the configured client secret if not explicitly provided.
     /// </summary>

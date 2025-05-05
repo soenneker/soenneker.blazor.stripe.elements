@@ -78,6 +78,22 @@
         });
     }
 
+    async submit(groupId) {
+        const group = this._findGroup(groupId);
+        if (!group) {
+            console.error(`StripeElements group "${groupId}" not found for submit.`);
+            return { error: { message: "Group not found" } };
+        }
+
+        try {
+            const result = await group.elements.submit();
+            return result; // will be { error?: StripeError }
+        } catch (e) {
+            console.warn(`Stripe elements.submit() failed: ${e?.message}`);
+            return { error: { message: e?.message ?? "Unknown error during submit" } };
+        }
+    }
+
     async confirmSetup(groupId, clientSecret, returnUrl) {
         const group = this._findGroup(groupId);
         if (!group) {
