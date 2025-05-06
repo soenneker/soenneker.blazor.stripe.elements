@@ -2,12 +2,25 @@
     constructor() {
         this.stripeElementsGroups = [];
         this.observers = new Map();
+        this._stripeCache = new Map();
+    }
+
+    _getStripe(publishableKey) {
+        if (!this._stripeCache.has(publishableKey)) {
+            this._stripeCache.set(publishableKey, window.Stripe(publishableKey));
+        }
+        return this._stripeCache.get(publishableKey);
     }
 
     async create(groupId, configJson, dotNetCallback) {
+        if (this._findGroup(groupId)) {
+            console.warn(`Group "${groupId}" already exists. Skipping creation.`);
+            return;
+        }
+
         const config = JSON.parse(configJson);
 
-        const stripe = window.Stripe(config.publishableKey);
+        const stripe = this._getStripe(config.publishableKey);
         const elements = stripe.elements(config.elementsOptions ?? {});
 
         const group = {
@@ -17,38 +30,46 @@
             components: {}
         };
 
-        // LINK AUTHENTICATION ELEMENT
-        if (config.linkAuthenticationElementId && config.linkAuthenticationOptions) {
-            const target = document.getElementById(config.linkAuthenticationElementId);
-            if (target) {
-                const element = elements.create("linkAuthentication", config.linkAuthenticationOptions);
-                element.mount(target);
-                group.components.linkAuth = element;
+        try {
+            if (config.linkAuthenticationElementId && config.linkAuthenticationOptions) {
+                const target = document.getElementById(config.linkAuthenticationElementId);
+                if (target) {
+                    const element = elements.create("linkAuthentication", config.linkAuthenticationOptions);
+                    element.mount(target);
+                    group.components.linkAuth = element;
+                }
             }
-        }
 
-        // PAYMENT ELEMENT
-        if (config.paymentElementId && config.paymentOptions) {
-            const target = document.getElementById(config.paymentElementId);
-            if (target) {
-                const element = elements.create("payment", config.paymentOptions);
-                element.mount(target);
-                group.components.payment = element;
+            if (config.paymentElementId && config.paymentOptions) {
+                const target = document.getElementById(config.paymentElementId);
+                if (target) {
+                    const element = elements.create("payment", config.paymentOptions);
+                    element.mount(target);
+                    group.components.payment = element;
+                }
             }
-        }
 
-        // ADDRESS ELEMENT
-        if (config.addressElementId && config.addressOptions) {
-            const target = document.getElementById(config.addressElementId);
-            if (target) {
-                const element = elements.create("address", config.addressOptions);
-                element.mount(target);
-                group.components.address = element;
+            if (config.addressElementId && config.addressOptions) {
+                const target = document.getElementById(config.addressElementId);
+                if (target) {
+                    const element = elements.create("address", config.addressOptions);
+                    element.mount(target);
+                    group.components.address = element;
+                }
             }
-        }
 
-        this.stripeElementsGroups.push(group);
-        await dotNetCallback.invokeMethodAsync("OnInitializedJs");
+            this.stripeElementsGroups.push(group);
+
+            try {
+                await dotNetCallback.invokeMethodAsync("OnInitializedJs");
+            } catch (e) {
+                console.error("Failed to invoke .NET OnInitializedJs:", e);
+            }
+
+        } catch (e) {
+            console.error("Error during element creation, rolling back group:", e);
+            this.unmountGroup(groupId);
+        }
     }
 
     async validatePayment(groupId, dotNetCallback) {
@@ -58,7 +79,12 @@
             return;
         }
 
-        return await group.elements.submit();
+        try {
+            return await group.elements.submit();
+        } catch (e) {
+            console.warn(`Stripe elements.submit() failed in validatePayment: ${e?.message}`);
+            return { error: { message: e?.message ?? "Submit failed" } };
+        }
     }
 
     async confirmPayment(groupId, clientSecret, returnUrl) {
@@ -68,7 +94,7 @@
             return;
         }
 
-       return await group.stripe.confirmPayment({
+        return await group.stripe.confirmPayment({
             clientSecret,
             elements: group.elements,
             confirmParams: {
@@ -87,7 +113,7 @@
 
         try {
             const result = await group.elements.submit();
-            return result; // will be { error?: StripeError }
+            return result;
         } catch (e) {
             console.warn(`Stripe elements.submit() failed: ${e?.message}`);
             return { error: { message: e?.message ?? "Unknown error during submit" } };
@@ -127,7 +153,10 @@
         });
 
         this.stripeElementsGroups = this.stripeElementsGroups.filter(g => g.id !== groupId);
+        this._disconnectObserver(groupId);
+    }
 
+    _disconnectObserver(groupId) {
         const observer = this.observers.get(groupId);
         if (observer) {
             observer.disconnect();
@@ -149,12 +178,6 @@
 
             if (targetRemoved) {
                 this.unmountGroup(groupId);
-
-                const currentObserver = this.observers.get(groupId);
-                if (currentObserver) {
-                    currentObserver.disconnect();
-                    this.observers.delete(groupId);
-                }
             }
         });
 
