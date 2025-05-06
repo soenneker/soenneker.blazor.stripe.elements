@@ -29,6 +29,8 @@ public interface IStripeElements : IAsyncDisposable
     /// <param name="cancellationToken">A token to cancel the initialization operation.</param>
     ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default);
 
+    ValueTask LoadStripe(CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Confirms a PaymentIntent using the mounted Stripe Elements group.
     /// Uses the configured client secret if not explicitly provided.
@@ -54,6 +56,11 @@ public interface IStripeElements : IAsyncDisposable
     /// <param name="setupIntentClientSecret">Optional: The client secret for the SetupIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     ValueTask<StripeConfirmResult?> ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Calls update() on all mounted Stripe elements in the group, typically used after DOM becomes visible (e.g. in tabs or modals).
+    /// </summary>
+    ValueTask Update(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Unmounts the current Stripe Elements instance and cleans up resources.

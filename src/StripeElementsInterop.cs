@@ -85,6 +85,11 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         return _jsRuntime.InvokeAsync<StripeConfirmResult?>($"{_moduleName}.confirmSetup", cancellationToken, elementId, setupIntentClientSecret, returnUrl);
     }
 
+    public ValueTask Update(string elementId, CancellationToken cancellationToken = default)
+    {
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.update", cancellationToken, elementId);
+    }
+
     public ValueTask Unmount(string elementId, CancellationToken cancellationToken = default)
     {
         return _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmountGroup", cancellationToken, elementId);

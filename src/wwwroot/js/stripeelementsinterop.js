@@ -111,6 +111,25 @@
         }
     }
 
+    update(groupId) {
+        const group = this._findGroup(groupId);
+        if (!group) {
+            console.error(`StripeElements group "${groupId}" not found for update.`);
+            return;
+        }
+
+        for (const [key, element] of Object.entries(group.components)) {
+            if (typeof element.update === "function") {
+                try {
+                    element.update({});
+                    console.debug(`Stripe element "${key}" updated.`);
+                } catch (e) {
+                    console.warn(`Failed to update element "${key}":`, e);
+                }
+            }
+        }
+    }
+
     async confirmSetup(groupId, clientSecret, returnUrl) {
         const group = this._findGroup(groupId);
         if (!group) {

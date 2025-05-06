@@ -75,6 +75,8 @@ public interface IStripeElementsInterop : IAsyncDisposable
     /// <returns>A task representing the asynchronous operation, returning the full Stripe confirmation result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default);
 
+    ValueTask Update(string elementId, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Unmounts and destroys all mounted Stripe Elements components within the specified DOM element group.
     /// This also removes any associated observers and resources.
