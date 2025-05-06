@@ -1,4 +1,5 @@
-﻿using Soenneker.Blazor.Stripe.Elements.Configuration;
+﻿using Microsoft.AspNetCore.Components;
+using Soenneker.Blazor.Stripe.Elements.Configuration;
 using Soenneker.Blazor.Stripe.Elements.Dtos;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,17 @@ public interface IStripeElements : IAsyncDisposable
     /// Whether to manually initialize the Stripe Elements component.
     /// </summary>
     bool ManuallyInitialize { get; set; }
+
+    /// <summary>
+    /// An event callback that is invoked when Stripe Elements has been fully initialized.
+    /// </summary>
+    EventCallback OnInitialize { get; set; }
+
+    /// <summary>
+    /// An event callback that is invoked after the Stripe Elements component has been rendered in the DOM.
+    /// Useful for detecting conditional rendering and lazy initialization.
+    /// </summary>
+    EventCallback OnElementRendered { get; set; }
 
     /// <summary>
     /// Initializes the Stripe Elements component with the specified configuration.

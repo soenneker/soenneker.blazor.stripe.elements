@@ -29,6 +29,9 @@
     [Parameter]
     public EventCallback OnInitialize { get; set; }
 
+    [Parameter]
+    public EventCallback OnElementRendered { get; set; }
+
     public string ElementId { get; set; } = $"stripe-elements-{Guid.NewGuid()}";
 
     private readonly CancellationTokenSource _cTs = new();
@@ -61,9 +64,12 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !ManuallyInitialize)
+        if (firstRender )
         {
-            await Initialize(null, _cTs.Token).NoSync();
+            await OnElementRendered.InvokeIfHasDelegate().NoSync();
+
+            if (!ManuallyInitialize)
+                await Initialize(null, _cTs.Token).NoSync();
         }
     }
 
