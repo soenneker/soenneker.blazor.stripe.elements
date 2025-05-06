@@ -1,5 +1,4 @@
 ﻿@using System.Threading
-@using Microsoft.Extensions.Logging
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Stripe.Elements.Abstract
 @using Soenneker.Blazor.Stripe.Elements.Configuration
@@ -10,7 +9,6 @@
 @using Soenneker.Extensions.String
 
 @inject IStripeElementsInterop StripeElementsInterop
-@inject ILogger<StripeElements> Logger
 
 @implements IStripeElements
 
@@ -81,12 +79,7 @@
             Configuration = configuration;
 
         if (Configuration == null)
-        {
-            if (Log)
-                Logger.LogError("Configuration is required, exiting initialization");
-
-            return;
-        }
+            throw new InvalidOperationException("StripeElements Configuration must be set");
 
         if (Configuration.AddressElementId == null)
             ElementIds[typeof(StripeAddressElement)] = $"stripe-address-{Guid.NewGuid()}";
