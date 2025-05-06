@@ -72,21 +72,6 @@
         }
     }
 
-    async validatePayment(groupId, dotNetCallback) {
-        const group = this._findGroup(groupId);
-        if (!group) {
-            console.error(`StripeElements group "${groupId}" not found for validation.`);
-            return;
-        }
-
-        try {
-            return await group.elements.submit();
-        } catch (e) {
-            console.warn(`Stripe elements.submit() failed in validatePayment: ${e?.message}`);
-            return { error: { message: e?.message ?? "Submit failed" } };
-        }
-    }
-
     async confirmPayment(groupId, clientSecret, returnUrl) {
         const group = this._findGroup(groupId);
         if (!group) {
@@ -95,8 +80,8 @@
         }
 
         return await group.stripe.confirmPayment({
-            clientSecret,
             elements: group.elements,
+            clientSecret,
             confirmParams: {
                 return_url: returnUrl
             },

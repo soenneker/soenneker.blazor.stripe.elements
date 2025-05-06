@@ -67,11 +67,6 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementId, json, dotNetObjectRef).NoSync();
     }
 
-    public ValueTask<StripeValidationResult?> ValidatePayment(string elementId, CancellationToken cancellationToken = default)
-    {
-        return _jsRuntime.InvokeAsync<StripeValidationResult?>($"{_moduleName}.validatePayment", cancellationToken, elementId);
-    }
-
     public ValueTask<StripeConfirmResult?> ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {

@@ -43,6 +43,9 @@
     [Parameter]
     public bool Log { get; set; }
 
+    [Parameter]
+    public bool ManuallyInitialize { get; set; }
+
     public Dictionary<Type, string> ElementIds { get; set; } = new()
     {
         {typeof(StripeAddressElement), $"stripe-address-{Guid.NewGuid()}"},
@@ -51,6 +54,7 @@
     };
 
     private bool _initialized;
+    private bool _createCalled;
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,7 +63,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !ManuallyInitialize)
         {
             await Initialize(null, _cTs.Token).NoSync();
         }
@@ -67,6 +71,10 @@
 
     public async ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
+        if (_createCalled)
+            throw new InvalidOperationException("StripeElements has already been Initialized");
+
+        _createCalled = true;
         _initialized = true;
 
         if (configuration != null)
@@ -82,8 +90,10 @@
 
         if (Configuration.AddressElementId == null)
             ElementIds[typeof(StripeAddressElement)] = $"stripe-address-{Guid.NewGuid()}";
+
         if (Configuration.LinkAuthenticationElementId == null)
             ElementIds[typeof(StripeLinkAuthenticationElement)] = $"stripe-link-auth-{Guid.NewGuid()}";
+
         if (Configuration.PaymentElementId == null)
             ElementIds[typeof(StripePaymentElement)] = $"stripe-payment-{Guid.NewGuid()}";
 
@@ -101,15 +111,6 @@
         await StripeElementsInterop.CreateObserver(ElementId, token).NoSync();
     }
 
-    public async ValueTask<StripeValidationResult?> ValidatePayment(CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
-
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        return await StripeElementsInterop.ValidatePayment(ElementId, linkedCts.Token).NoSync();
-    }
-
     public async ValueTask<StripeConfirmResult?> ConfirmPayment(string returnUrl, string? paymentIntentClientSecret = null, CancellationToken cancellationToken = default)
     {
         if (!_initialized)
@@ -121,7 +122,6 @@
             throw new InvalidOperationException("PaymentIntent client secret is missing.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-
         return await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, linkedCts.Token);
     }
 
@@ -136,7 +136,6 @@
             throw new InvalidOperationException("SetupIntent client secret is missing.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-
         return await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linkedCts.Token);
     }
 

@@ -45,15 +45,6 @@ public interface IStripeElementsInterop : IAsyncDisposable
     ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Submits and validates the mounted Stripe Payment Element.
-    /// If validation fails, error details will be passed to the specified .NET callback.
-    /// </summary>
-    /// <param name="elementId">The DOM element ID of the Stripe Elements group.</param>
-    /// <param name="cancellationToken">A token that can be used to cancel the validation operation.</param>
-    /// <returns>A task representing the asynchronous validation process.</returns>
-    ValueTask<StripeValidationResult?> ValidatePayment(string elementId, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Confirms a Stripe PaymentIntent using the mounted Stripe Payment Element and returns the result.
     /// This method uses Stripe.js to handle 3D Secure if required and returns the full result object.
     /// </summary>
@@ -64,6 +55,13 @@ public interface IStripeElementsInterop : IAsyncDisposable
     /// <returns>A task representing the asynchronous operation, returning the full Stripe confirmation result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Submits and validates the mounted Stripe Payment Element.
+    /// If validation fails, error details will be passed to the specified .NET callback.
+    /// </summary>
+    /// <param name="elementId">The DOM element ID of the Stripe Elements group.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the validation operation.</param>
+    /// <returns>A task representing the asynchronous validation process.</returns>
     ValueTask<StripeSubmitResult?> Submit(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>

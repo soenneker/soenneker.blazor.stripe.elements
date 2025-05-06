@@ -111,7 +111,7 @@
 
         try
         {
-            await _stripeElements!.ValidatePayment();
+            await _stripeElements!.Submit();
         }
         catch (Exception ex)
         {

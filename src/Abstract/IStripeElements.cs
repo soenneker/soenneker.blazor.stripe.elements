@@ -18,17 +18,16 @@ public interface IStripeElements : IAsyncDisposable
     string ElementId { get; }
 
     /// <summary>
+    /// Whether to manually initialize the Stripe Elements component.
+    /// </summary>
+    bool ManuallyInitialize { get; set; }
+
+    /// <summary>
     /// Initializes the Stripe Elements component with the specified configuration.
     /// </summary>
     /// <param name="configuration">The Stripe Elements configuration to apply.</param>
     /// <param name="cancellationToken">A token to cancel the initialization operation.</param>
     ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Validates the Stripe Elements input fields (used for PaymentIntents only).
-    /// </summary>
-    /// <param name="cancellationToken">A token to cancel the validation.</param>
-    ValueTask<StripeValidationResult?> ValidatePayment(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a PaymentIntent using the mounted Stripe Elements group.
