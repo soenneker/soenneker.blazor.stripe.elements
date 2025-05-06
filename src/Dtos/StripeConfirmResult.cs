@@ -25,10 +25,4 @@ public sealed class StripeConfirmResult
     /// </summary>
     [JsonPropertyName("paymentIntent")]
     public StripeIntent? PaymentIntent { get; set; }
-
-    /// <summary>
-    /// The top-level status of the confirmation result.
-    /// </summary>
-    [JsonPropertyName("status")]
-    public string? Status { get; set; }
 }
