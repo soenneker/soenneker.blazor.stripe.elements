@@ -81,15 +81,6 @@
         if (Configuration == null)
             throw new InvalidOperationException("StripeElements Configuration must be set");
 
-        if (Configuration.AddressElementId == null)
-            ElementIds[typeof(StripeAddressElement)] = $"stripe-address-{Guid.NewGuid()}";
-
-        if (Configuration.LinkAuthenticationElementId == null)
-            ElementIds[typeof(StripeLinkAuthenticationElement)] = $"stripe-link-auth-{Guid.NewGuid()}";
-
-        if (Configuration.PaymentElementId == null)
-            ElementIds[typeof(StripePaymentElement)] = $"stripe-payment-{Guid.NewGuid()}";
-
         Configuration.AddressElementId ??= ElementIds[typeof(StripeAddressElement)];
         Configuration.LinkAuthenticationElementId ??= ElementIds[typeof(StripeLinkAuthenticationElement)];
         Configuration.PaymentElementId ??= ElementIds[typeof(StripePaymentElement)];

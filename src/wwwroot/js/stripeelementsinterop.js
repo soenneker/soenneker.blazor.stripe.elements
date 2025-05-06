@@ -37,6 +37,8 @@
                     const element = elements.create("linkAuthentication", config.linkAuthenticationOptions);
                     element.mount(target);
                     group.components.linkAuth = element;
+                } else {
+                    console.error(`Could not find Stripe linkAuthentication element with id '${config.linkAuthenticationElementId}'`);
                 }
             }
 
@@ -46,6 +48,8 @@
                     const element = elements.create("payment", config.paymentOptions);
                     element.mount(target);
                     group.components.payment = element;
+                } else {
+                    console.error(`Could not find Stripe payment element with id '${config.paymentElementId}'`);
                 }
             }
 
@@ -55,6 +59,8 @@
                     const element = elements.create("address", config.addressOptions);
                     element.mount(target);
                     group.components.address = element;
+                } else {
+                    console.error(`Could not find Stripe address element with id '${config.addressElementId}'`);
                 }
             }
 
