@@ -35,6 +35,24 @@ public interface IStripeElements : IAsyncDisposable
     EventCallback OnElementRendered { get; set; }
 
     /// <summary>
+    /// Invoked specifically when the Payment Element iframe has finished rendering and is interactive.
+    /// This corresponds to the Stripe 'ready' event for the Payment Element.
+    /// </summary>
+    EventCallback OnPaymentElementReady { get; set; }
+
+    /// <summary>
+    /// Invoked specifically when the Address Element iframe has finished rendering and is interactive.
+    /// This corresponds to the Stripe 'ready' event for the Address Element.
+    /// </summary>
+    EventCallback OnAddressElementReady { get; set; }
+
+    /// <summary>
+    /// Invoked specifically when the Link Authentication Element iframe has finished rendering and is interactive.
+    /// This corresponds to the Stripe 'ready' event for the LinkAuthentication Element.
+    /// </summary>
+    EventCallback OnLinkAuthenticationElementReady { get; set; }
+
+    /// <summary>
     /// Initializes the Stripe Elements component with the specified configuration.
     /// </summary>
     /// <param name="configuration">The Stripe Elements configuration to apply.</param>

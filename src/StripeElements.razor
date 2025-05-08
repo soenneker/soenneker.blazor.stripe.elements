@@ -32,6 +32,15 @@
     [Parameter]
     public EventCallback OnElementRendered { get; set; }
 
+    [Parameter] 
+    public EventCallback OnPaymentElementReady { get; set; }
+
+    [Parameter] 
+    public EventCallback OnAddressElementReady { get; set; }
+
+    [Parameter] 
+    public EventCallback OnLinkAuthenticationElementReady { get; set; }
+
     public string ElementId { get; set; } = $"stripe-elements-{Guid.NewGuid()}";
 
     private readonly CancellationTokenSource _cTs = new();
@@ -166,6 +175,24 @@
     public async Task OnInitializedJs()
     {
         await OnInitialize.InvokeIfHasDelegate().NoSync();
+    }
+
+    [JSInvokable("OnPaymentElementReadyJs")]
+    public async Task OnPaymentElementReadyJs()
+    {
+        await OnPaymentElementReady.InvokeIfHasDelegate().NoSync();
+    }
+
+    [JSInvokable("OnAddressElementReadyJs")]
+    public async Task OnAddressElementReadyJs()
+    {
+        await OnAddressElementReady.InvokeIfHasDelegate().NoSync();
+    }
+
+    [JSInvokable("OnLinkAuthenticationElementReadyJs")]
+    public async Task OnLinkAuthenticationElementReadyJs()
+    {
+        await OnLinkAuthenticationElementReady.InvokeIfHasDelegate().NoSync();
     }
 
     public async ValueTask DisposeAsync()

@@ -35,6 +35,11 @@
                 const target = document.getElementById(config.linkAuthenticationElementId);
                 if (target) {
                     const element = elements.create("linkAuthentication", config.linkAuthenticationOptions);
+
+                    element.on("ready", () => {
+                        dotNetCallback.invokeMethodAsync("OnLinkAuthenticationElementReadyJs");
+                    });
+
                     element.mount(target);
                     group.components.linkAuth = element;
                 } else {
@@ -46,6 +51,11 @@
                 const target = document.getElementById(config.paymentElementId);
                 if (target) {
                     const element = elements.create("payment", config.paymentOptions);
+
+                    element.on("ready", () => {
+                        dotNetCallback.invokeMethodAsync("OnPaymentElementReadyJs");
+                    });
+
                     element.mount(target);
                     group.components.payment = element;
                 } else {
@@ -57,6 +67,11 @@
                 const target = document.getElementById(config.addressElementId);
                 if (target) {
                     const element = elements.create("address", config.addressOptions);
+
+                    element.on("ready", () => {
+                        dotNetCallback.invokeMethodAsync("OnAddressElementReadyJs");
+                    });
+
                     element.mount(target);
                     group.components.address = element;
                 } else {
