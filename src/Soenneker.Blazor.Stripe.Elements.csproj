@@ -47,7 +47,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.6" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="3.0.415" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="3.0.3644" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="3.0.1468" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="3.0.1469" />
         <PackageReference Include="Soenneker.Dtos.Stripe.Error" Version="3.0.62" />
         <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="3.0.7" />
     </ItemGroup>
