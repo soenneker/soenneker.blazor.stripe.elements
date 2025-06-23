@@ -50,7 +50,7 @@ public interface IStripeElements : IAsyncDisposable
     /// Invoked specifically when the Link Authentication Element iframe has finished rendering and is interactive.
     /// This corresponds to the Stripe 'ready' event for the LinkAuthentication Element.
     /// </summary>
-    EventCallback OnLinkAuthenticationElementReady { get; set;
+    EventCallback OnLinkAuthenticationElementReady { get; set; }
 
     /// <summary>
     /// Invoked after the Submit operation completes, regardless of success or failure.
