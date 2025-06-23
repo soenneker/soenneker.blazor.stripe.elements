@@ -41,6 +41,15 @@
     [Parameter] 
     public EventCallback OnLinkAuthenticationElementReady { get; set; }
 
+    [Parameter]
+    public EventCallback<StripeSubmitResult?> OnAfterSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback<StripeConfirmResult?> OnAfterConfirmPayment { get; set; }
+
+    [Parameter]
+    public EventCallback<StripeConfirmResult?> OnAfterConfirmSetup { get; set; }
+
     public string ElementId { get; set; } = $"stripe-elements-{Guid.NewGuid()}";
 
     private readonly CancellationTokenSource _cTs = new();
@@ -127,7 +136,12 @@
             throw new InvalidOperationException("PaymentIntent client secret is missing.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        return await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, linkedCts.Token);
+        StripeConfirmResult? result = await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, linkedCts.Token);
+
+        if (OnAfterConfirmPayment.HasDelegate)
+            await OnAfterConfirmPayment.InvokeAsync(result);
+
+        return result;
     }
 
     public async ValueTask<StripeConfirmResult?> ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default)
@@ -141,7 +155,12 @@
             throw new InvalidOperationException("SetupIntent client secret is missing.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        return await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linkedCts.Token);
+        StripeConfirmResult? result = await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linkedCts.Token);
+
+        if (OnAfterConfirmSetup.HasDelegate)
+            await OnAfterConfirmSetup.InvokeAsync(result);
+
+        return result;
     }
 
     public async ValueTask<StripeSubmitResult?> Submit(CancellationToken cancellationToken = default)
@@ -150,7 +169,12 @@
             throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        return await StripeElementsInterop.Submit(ElementId, linkedCts.Token).NoSync();
+        StripeSubmitResult? result = await StripeElementsInterop.Submit(ElementId, linkedCts.Token).NoSync();
+
+        if (OnAfterSubmit.HasDelegate)
+            await OnAfterSubmit.InvokeAsync(result);
+
+        return result;
     }
 
     public async ValueTask Update(CancellationToken cancellationToken = default)

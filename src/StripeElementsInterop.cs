@@ -4,7 +4,6 @@ using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.Json;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
@@ -97,7 +96,6 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
     public async ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
         await _resourceLoader.DisposeModule(_module).NoSync();
         await _scriptInitializer.DisposeAsync().NoSync();
     }
