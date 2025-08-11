@@ -6,14 +6,16 @@
 @using Soenneker.Extensions.ValueTask
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Stripe.Elements.Dtos
+@using Soenneker.Extensions.CancellationTokens
 @using Soenneker.Extensions.String
 
 @inject IStripeElementsInterop StripeElementsInterop
 
+@inherits Soenneker.Quark.Components.Cancellable.CancellableComponent
 @implements IStripeElements
 
 <div id="@ElementId" @attributes="Attributes" >
-    <CascadingValue Value="ElementIds">
+    <CascadingValue Value="ElementIds" >
         @ChildContent
     </CascadingValue>
 </div>
@@ -32,13 +34,13 @@
     [Parameter]
     public EventCallback OnElementRendered { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public EventCallback OnPaymentElementReady { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public EventCallback OnAddressElementReady { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public EventCallback OnLinkAuthenticationElementReady { get; set; }
 
     [Parameter]
@@ -51,8 +53,6 @@
     public EventCallback<StripeConfirmResult?> OnAfterConfirmSetup { get; set; }
 
     public string ElementId { get; set; } = $"stripe-elements-{Guid.NewGuid()}";
-
-    private readonly CancellationTokenSource _cTs = new();
 
     private DotNetObjectReference<StripeElements>? _dotNetReference;
 
@@ -77,24 +77,26 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await StripeElementsInterop.Initialize(_cTs.Token).NoSync();
+        await StripeElementsInterop.Initialize(CancellationToken).NoSync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender )
+        if (firstRender)
         {
             await OnElementRendered.InvokeIfHasDelegate().NoSync();
 
             if (!ManuallyInitialize)
-                await Initialize(null, _cTs.Token).NoSync();
+                await Initialize(null, CancellationToken).NoSync();
         }
     }
 
     public async ValueTask LoadStripe(CancellationToken cancellationToken = default)
     {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        await StripeElementsInterop.LoadStripe(linkedCts.Token);
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+            await StripeElementsInterop.LoadStripe(linked).NoSync();
     }
 
     public async ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default)
@@ -117,12 +119,13 @@
 
         _dotNetReference = DotNetObjectReference.Create(this);
 
-        using CancellationTokenSource? linkedCts = cancellationToken != _cTs.Token ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token) : null;
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        CancellationToken token = linkedCts?.Token ?? _cTs.Token;
-
-        await StripeElementsInterop.Create(ElementId, _dotNetReference, Configuration, token).NoSync();
-        await StripeElementsInterop.CreateObserver(ElementId, token).NoSync();
+        using (cts)
+        {
+            await StripeElementsInterop.Create(ElementId, _dotNetReference, Configuration, linked).NoSync();
+            await StripeElementsInterop.CreateObserver(ElementId, linked).NoSync();
+        }
     }
 
     public async ValueTask<StripeConfirmResult?> ConfirmPayment(string returnUrl, string? paymentIntentClientSecret = null, CancellationToken cancellationToken = default)
@@ -135,13 +138,14 @@
         if (paymentIntentClientSecret.IsNullOrWhiteSpace())
             throw new InvalidOperationException("PaymentIntent client secret is missing.");
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        StripeConfirmResult? result = await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, linkedCts.Token);
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        if (OnAfterConfirmPayment.HasDelegate)
-            await OnAfterConfirmPayment.InvokeAsync(result);
-
-        return result;
+        using (cts)
+        {
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, linked).NoSync();
+            await OnAfterConfirmPayment.InvokeIfHasDelegate(result).NoSync();
+            return result;
+        }
     }
 
     public async ValueTask<StripeConfirmResult?> ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default)
@@ -154,13 +158,14 @@
         if (setupIntentClientSecret.IsNullOrWhiteSpace())
             throw new InvalidOperationException("SetupIntent client secret is missing.");
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        StripeConfirmResult? result = await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linkedCts.Token);
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        if (OnAfterConfirmSetup.HasDelegate)
-            await OnAfterConfirmSetup.InvokeAsync(result);
-
-        return result;
+        using (cts)
+        {
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linked).NoSync();
+            await OnAfterConfirmSetup.InvokeIfHasDelegate(result).NoSync();
+            return result;
+        }
     }
 
     public async ValueTask<StripeSubmitResult?> Submit(CancellationToken cancellationToken = default)
@@ -168,13 +173,14 @@
         if (!_initialized)
             throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        StripeSubmitResult? result = await StripeElementsInterop.Submit(ElementId, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        if (OnAfterSubmit.HasDelegate)
-            await OnAfterSubmit.InvokeAsync(result);
-
-        return result;
+        using (cts)
+        {
+            StripeSubmitResult? result = await StripeElementsInterop.Submit(ElementId, linked).NoSync();
+            await OnAfterSubmit.InvokeIfHasDelegate(result).NoSync();
+            return result;
+        }
     }
 
     public async ValueTask Update(CancellationToken cancellationToken = default)
@@ -182,8 +188,10 @@
         if (!_initialized)
             throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        await StripeElementsInterop.Update(ElementId, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+            await StripeElementsInterop.Update(ElementId, linked).NoSync();
     }
 
     public async ValueTask Unmount(CancellationToken cancellationToken = default)
@@ -191,41 +199,41 @@
         if (!_initialized)
             throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        await StripeElementsInterop.Unmount(ElementId, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+            await StripeElementsInterop.Unmount(ElementId, linked).NoSync();
     }
 
     [JSInvokable("OnInitializedJs")]
-    public async Task OnInitializedJs()
+    public Task OnInitializedJs()
     {
-        await OnInitialize.InvokeIfHasDelegate().NoSync();
+        return OnInitialize.InvokeIfHasDelegate();
     }
 
     [JSInvokable("OnPaymentElementReadyJs")]
-    public async Task OnPaymentElementReadyJs()
+    public Task OnPaymentElementReadyJs()
     {
-        await OnPaymentElementReady.InvokeIfHasDelegate().NoSync();
+        return OnPaymentElementReady.InvokeIfHasDelegate();
     }
 
     [JSInvokable("OnAddressElementReadyJs")]
-    public async Task OnAddressElementReadyJs()
+    public Task OnAddressElementReadyJs()
     {
-        await OnAddressElementReady.InvokeIfHasDelegate().NoSync();
+        return OnAddressElementReady.InvokeIfHasDelegate();
     }
 
     [JSInvokable("OnLinkAuthenticationElementReadyJs")]
-    public async Task OnLinkAuthenticationElementReadyJs()
+    public Task OnLinkAuthenticationElementReadyJs()
     {
-        await OnLinkAuthenticationElementReady.InvokeIfHasDelegate().NoSync();
+        return OnLinkAuthenticationElementReady.InvokeIfHasDelegate();
     }
 
-    public async ValueTask DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
+        await base.DisposeAsync().NoSync();
 
         _dotNetReference?.Dispose();
-
-        await _cTs.CancelAsync().NoSync();
     }
 
 }
