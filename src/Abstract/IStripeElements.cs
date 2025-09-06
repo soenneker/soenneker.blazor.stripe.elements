@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
 using Soenneker.Blazor.Stripe.Elements.Dtos;
 using System;

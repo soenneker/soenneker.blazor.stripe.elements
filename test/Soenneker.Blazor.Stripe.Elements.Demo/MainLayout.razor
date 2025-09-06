@@ -1,4 +1,4 @@
-﻿@using Soenneker.Blazor.Stripe.Elements.Abstract
+@using Soenneker.Blazor.Stripe.Elements.Abstract
 @using Soenneker.Extensions.ValueTask
 @inherits LayoutComponentBase
 @inject IStripeElementsInterop StripeElementsInterop
@@ -11,7 +11,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await StripeElementsInterop.LoadStripe().NoSync();
+        await StripeElementsInterop.LoadStripe();
     }
 
 }

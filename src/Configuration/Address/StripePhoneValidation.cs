@@ -1,4 +1,4 @@
-﻿using Soenneker.Blazor.Stripe.Elements.Enums;
+using Soenneker.Blazor.Stripe.Elements.Enums;
 using System.Text.Json.Serialization;
 
 namespace Soenneker.Blazor.Stripe.Elements.Configuration.Address;

@@ -1,4 +1,4 @@
-﻿using Soenneker.Dtos.Stripe.Error;
+using Soenneker.Dtos.Stripe.Error;
 using System.Text.Json.Serialization;
 
 namespace Soenneker.Blazor.Stripe.Elements.Dtos;

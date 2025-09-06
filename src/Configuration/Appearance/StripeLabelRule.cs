@@ -1,4 +1,4 @@
-﻿namespace Soenneker.Blazor.Stripe.Elements.Configuration.Appearance;
+namespace Soenneker.Blazor.Stripe.Elements.Configuration.Appearance;
 
 /// <summary>
 /// Style properties for labels.

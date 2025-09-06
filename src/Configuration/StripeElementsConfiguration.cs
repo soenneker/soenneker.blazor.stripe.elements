@@ -1,4 +1,4 @@
-﻿using Soenneker.Blazor.Stripe.Elements.Configuration.LinkAuthentication;
+using Soenneker.Blazor.Stripe.Elements.Configuration.LinkAuthentication;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Payment;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Address;
 using System.Text.Json.Serialization;

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Stripe.Elements.Abstract;
 using Soenneker.Blazor.Utils.InteropEventListener.Registrars;

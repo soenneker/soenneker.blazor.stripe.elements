@@ -1,4 +1,4 @@
-﻿using Microsoft.JSInterop;
+using Microsoft.JSInterop;
 using Soenneker.Blazor.Stripe.Elements.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.ValueTask;
@@ -30,14 +30,14 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         _stripeJsInitializer = new AsyncSingleton(async (token, _) =>
         {
-            await _resourceLoader.LoadScript("https://js.stripe.com/v3/", async: true, cancellationToken: token).NoSync();
+            await _resourceLoader.LoadScript("https://js.stripe.com/v3/", async: true, cancellationToken: token);
             return new object();
         });
 
         _scriptInitializer = new AsyncSingleton(async (token, _) =>
         {
-            await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token).NoSync();
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token).NoSync();
+            await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token);
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
             return new object();
         });
     }
@@ -49,8 +49,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        await _stripeJsInitializer.Init(cancellationToken).NoSync();
-        await _scriptInitializer.Init(cancellationToken).NoSync();
+        await _stripeJsInitializer.Init(cancellationToken);
+        await _scriptInitializer.Init(cancellationToken);
     }
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
@@ -61,9 +61,9 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
     public async ValueTask Create(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef, StripeElementsConfiguration elementsConfiguration,
         CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken).NoSync();
+        await _scriptInitializer.Init(cancellationToken);
         string? json = JsonUtil.Serialize(elementsConfiguration);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementId, json, dotNetObjectRef).NoSync();
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementId, json, dotNetObjectRef);
     }
 
     public ValueTask<StripeConfirmResult?> ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl,
@@ -96,7 +96,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_module).NoSync();
-        await _scriptInitializer.DisposeAsync().NoSync();
+        await _resourceLoader.DisposeModule(_module);
+        await _scriptInitializer.DisposeAsync();
     }
 }

@@ -1,4 +1,4 @@
-﻿@using System.Threading
+@using System.Threading
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Stripe.Elements.Abstract
 @using Soenneker.Blazor.Stripe.Elements.Configuration
@@ -77,17 +77,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await StripeElementsInterop.Initialize(CancellationToken).NoSync();
+        await StripeElementsInterop.Initialize(CancellationToken);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await OnElementRendered.InvokeIfHasDelegate().NoSync();
+            await OnElementRendered.InvokeIfHasDelegate();
 
             if (!ManuallyInitialize)
-                await Initialize(null, CancellationToken).NoSync();
+                await Initialize(null, CancellationToken);
         }
     }
 
@@ -96,7 +96,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await StripeElementsInterop.LoadStripe(linked).NoSync();
+            await StripeElementsInterop.LoadStripe(linked);
     }
 
     public async ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default)
@@ -123,8 +123,8 @@
 
         using (cts)
         {
-            await StripeElementsInterop.Create(ElementId, _dotNetReference, Configuration, linked).NoSync();
-            await StripeElementsInterop.CreateObserver(ElementId, linked).NoSync();
+            await StripeElementsInterop.Create(ElementId, _dotNetReference, Configuration, linked);
+            await StripeElementsInterop.CreateObserver(ElementId, linked);
         }
     }
 
@@ -142,8 +142,8 @@
 
         using (cts)
         {
-            StripeConfirmResult? result = await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, linked).NoSync();
-            await OnAfterConfirmPayment.InvokeIfHasDelegate(result).NoSync();
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, linked);
+            await OnAfterConfirmPayment.InvokeIfHasDelegate(result);
             return result;
         }
     }
@@ -162,8 +162,8 @@
 
         using (cts)
         {
-            StripeConfirmResult? result = await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linked).NoSync();
-            await OnAfterConfirmSetup.InvokeIfHasDelegate(result).NoSync();
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linked);
+            await OnAfterConfirmSetup.InvokeIfHasDelegate(result);
             return result;
         }
     }
@@ -177,8 +177,8 @@
 
         using (cts)
         {
-            StripeSubmitResult? result = await StripeElementsInterop.Submit(ElementId, linked).NoSync();
-            await OnAfterSubmit.InvokeIfHasDelegate(result).NoSync();
+            StripeSubmitResult? result = await StripeElementsInterop.Submit(ElementId, linked);
+            await OnAfterSubmit.InvokeIfHasDelegate(result);
             return result;
         }
     }
@@ -191,7 +191,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await StripeElementsInterop.Update(ElementId, linked).NoSync();
+            await StripeElementsInterop.Update(ElementId, linked);
     }
 
     public async ValueTask Unmount(CancellationToken cancellationToken = default)
@@ -202,7 +202,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await StripeElementsInterop.Unmount(ElementId, linked).NoSync();
+            await StripeElementsInterop.Unmount(ElementId, linked);
     }
 
     [JSInvokable("OnInitializedJs")]
@@ -231,7 +231,7 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync().NoSync();
+        await base.DisposeAsync();
 
         _dotNetReference?.Dispose();
     }

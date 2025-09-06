@@ -1,4 +1,4 @@
-﻿using Soenneker.Blazor.Stripe.Elements.Abstract;
+using Soenneker.Blazor.Stripe.Elements.Abstract;
 using Soenneker.Tests.FixturedUnit;
 using Xunit;
 

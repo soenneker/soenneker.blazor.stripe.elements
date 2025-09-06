@@ -1,4 +1,4 @@
-﻿using Soenneker.Blazor.Stripe.Elements.Configuration.Appearance;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Appearance;
 using Soenneker.Blazor.Stripe.Elements.Enums;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
