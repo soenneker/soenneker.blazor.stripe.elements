@@ -5,13 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Quark.Components.Cancellable.Abstract;
 
 namespace Soenneker.Blazor.Stripe.Elements.Abstract;
 
 /// <summary>
 /// A Blazor component interface for interacting with Stripe Elements.
 /// </summary>
-public interface IStripeElements : IAsyncDisposable
+public interface IStripeElements : ICancellableElement
 {
     /// <summary>
     /// Gets the unique DOM element ID used for the root Stripe Elements container.

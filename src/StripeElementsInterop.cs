@@ -1,7 +1,6 @@
 using Microsoft.JSInterop;
 using Soenneker.Blazor.Stripe.Elements.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.Json;
 using System.Threading;

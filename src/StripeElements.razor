@@ -2,8 +2,6 @@
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Stripe.Elements.Abstract
 @using Soenneker.Blazor.Stripe.Elements.Configuration
-@using Soenneker.Extensions.Task
-@using Soenneker.Extensions.ValueTask
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Stripe.Elements.Dtos
 @using Soenneker.Extensions.CancellationTokens
@@ -11,7 +9,7 @@
 
 @inject IStripeElementsInterop StripeElementsInterop
 
-@inherits Soenneker.Quark.Components.Cancellable.CancellableComponent
+@inherits Soenneker.Quark.Components.Cancellable.CancellableElement
 @implements IStripeElements
 
 <div id="@ElementId" @attributes="Attributes" >
@@ -21,12 +19,6 @@
 </div>
 
 @code {
-
-    [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object?>? Attributes { get; set; }
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
     public EventCallback OnInitialize { get; set; }
