@@ -1,18 +1,18 @@
 @using System.Threading
 @using Microsoft.JSInterop
+@using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Stripe.Elements.Abstract
 @using Soenneker.Blazor.Stripe.Elements.Configuration
-@using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Stripe.Elements.Dtos
 @using Soenneker.Extensions.CancellationTokens
 @using Soenneker.Extensions.String
 
 @inject IStripeElementsInterop StripeElementsInterop
 
-@inherits Soenneker.Quark.Components.Cancellable.CancellableElement
+@inherits Soenneker.Quark.Components.Core.Cancellable.CoreCancellableElement
 @implements IStripeElements
 
-<div id="@ElementId" @attributes="Attributes" >
+<div id="@Id" @attributes="Attributes">
     <CascadingValue Value="ElementIds" >
         @ChildContent
     </CascadingValue>
@@ -44,7 +44,8 @@
     [Parameter]
     public EventCallback<StripeConfirmResult?> OnAfterConfirmSetup { get; set; }
 
-    public string ElementId { get; set; } = $"stripe-elements-{Guid.NewGuid()}";
+    [Parameter]
+    public override string? Id { get; set; } = $"stripe-elements-{Guid.NewGuid()}";
 
     private DotNetObjectReference<StripeElements>? _dotNetReference;
 
@@ -115,8 +116,8 @@
 
         using (cts)
         {
-            await StripeElementsInterop.Create(ElementId, _dotNetReference, Configuration, linked);
-            await StripeElementsInterop.CreateObserver(ElementId, linked);
+            await StripeElementsInterop.Create(Id!, _dotNetReference, Configuration, linked);
+            await StripeElementsInterop.CreateObserver(Id!, linked);
         }
     }
 
@@ -134,7 +135,7 @@
 
         using (cts)
         {
-            StripeConfirmResult? result = await StripeElementsInterop.ConfirmPayment(ElementId, paymentIntentClientSecret, returnUrl, linked);
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmPayment(Id!, paymentIntentClientSecret, returnUrl, linked);
             await OnAfterConfirmPayment.InvokeIfHasDelegate(result);
             return result;
         }
@@ -154,7 +155,7 @@
 
         using (cts)
         {
-            StripeConfirmResult? result = await StripeElementsInterop.ConfirmSetup(ElementId, setupIntentClientSecret, returnUrl, linked);
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmSetup(Id!, setupIntentClientSecret, returnUrl, linked);
             await OnAfterConfirmSetup.InvokeIfHasDelegate(result);
             return result;
         }
@@ -169,7 +170,7 @@
 
         using (cts)
         {
-            StripeSubmitResult? result = await StripeElementsInterop.Submit(ElementId, linked);
+            StripeSubmitResult? result = await StripeElementsInterop.Submit(Id!, linked);
             await OnAfterSubmit.InvokeIfHasDelegate(result);
             return result;
         }
@@ -183,7 +184,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await StripeElementsInterop.Update(ElementId, linked);
+            await StripeElementsInterop.Update(Id!, linked);
     }
 
     public async ValueTask Unmount(CancellationToken cancellationToken = default)
@@ -194,7 +195,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await StripeElementsInterop.Unmount(ElementId, linked);
+            await StripeElementsInterop.Unmount(Id!, linked);
     }
 
     [JSInvokable("OnInitializedJs")]
