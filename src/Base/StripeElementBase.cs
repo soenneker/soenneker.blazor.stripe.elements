@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
-using Soenneker.Quark.Components.Core;
+using Soenneker.Quark;
 
 namespace Soenneker.Blazor.Stripe.Elements.Base;
 

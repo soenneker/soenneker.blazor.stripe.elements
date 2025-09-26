@@ -6,7 +6,7 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 /// Controls the behavior of individual billing address fields in the Payment Element.
 /// </summary>
 [Intellenum<string>]
-public partial class StripeBillingAddressFieldOption
+public sealed partial class StripeBillingAddressFieldOption
 {
     /// <summary>Let Stripe determine whether to collect the field (default).</summary>
     public static readonly StripeBillingAddressFieldOption Auto = new("auto");

@@ -6,7 +6,7 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 /// The autocomplete mode for the Stripe Address Element.
 /// </summary>
 [Intellenum<string>]
-public partial class StripeAddressAutocompleteMode
+public sealed partial class StripeAddressAutocompleteMode
 {
     /// <summary>Enable Stripe’s default automatic behavior.</summary>
     public static readonly StripeAddressAutocompleteMode Automatic = new("automatic");

@@ -6,7 +6,7 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 /// When to show the phone field in the Address Element.
 /// </summary>
 [Intellenum<string>]
-public partial class StripeAddressFieldsPhoneOption
+public sealed partial class StripeAddressFieldsPhoneOption
 {
     /// <summary>Always show the phone field.</summary>
     public static readonly StripeAddressFieldsPhoneOption Always = new("always");

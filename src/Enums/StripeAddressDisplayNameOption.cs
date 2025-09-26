@@ -6,7 +6,7 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 /// How to display name fields in the Address Element.
 /// </summary>
 [Intellenum<string>]
-public partial class StripeAddressDisplayNameOption
+public sealed partial class StripeAddressDisplayNameOption
 {
     /// <summary>Display a single full name field.</summary>
     public static readonly StripeAddressDisplayNameOption Full = new("full");
