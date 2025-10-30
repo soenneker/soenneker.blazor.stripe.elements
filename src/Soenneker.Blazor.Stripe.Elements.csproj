@@ -50,7 +50,7 @@
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.3735" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="3.0.1508" />
         <PackageReference Include="Soenneker.Dtos.Stripe.Error" Version="4.0.84" />
-        <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="3.0.14" />
+        <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="4.0.16" />
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="4.0.4" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.9" />
     </ItemGroup>
