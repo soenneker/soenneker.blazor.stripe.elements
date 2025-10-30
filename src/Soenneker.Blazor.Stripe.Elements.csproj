@@ -52,6 +52,6 @@
         <PackageReference Include="Soenneker.Dtos.Stripe.Error" Version="4.0.84" />
         <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="3.0.14" />
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="4.0.4" />
-        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="3.0.8" />
+        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.9" />
     </ItemGroup>
 </Project>
