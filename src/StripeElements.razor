@@ -67,21 +67,31 @@
 
     private bool _initialized;
     private bool _createCalled;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await StripeElementsInterop.Initialize(CancellationToken);
-    }
+    private bool _interopInitialized;
+    private bool _elementRenderHandled;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            await OnElementRendered.InvokeIfHasDelegate();
+        await base.OnAfterRenderAsync(firstRender);
 
-            if (!ManuallyInitialize)
-                await Initialize(null, CancellationToken);
+        if (!firstRender && _elementRenderHandled)
+            return;
+
+        if (!_interopInitialized)
+        {
+            await StripeElementsInterop.Initialize(CancellationToken);
+            _interopInitialized = true;
         }
+
+        if (_elementRenderHandled)
+            return;
+
+        _elementRenderHandled = true;
+
+        await OnElementRendered.InvokeIfHasDelegate();
+
+        if (!ManuallyInitialize)
+            await Initialize();
     }
 
     public async ValueTask LoadStripe(CancellationToken cancellationToken = default)
@@ -96,6 +106,9 @@
     {
         if (_createCalled)
             throw new InvalidOperationException("StripeElements has already been Initialized");
+
+        if (!_interopInitialized)
+            throw new InvalidOperationException("Stripe Elements interop is not yet available. Wait until the component has rendered.");
 
         _createCalled = true;
         _initialized = true;
