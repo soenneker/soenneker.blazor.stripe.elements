@@ -1,7 +1,7 @@
 using Microsoft.JSInterop;
 using Soenneker.Blazor.Stripe.Elements.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
+using Soenneker.Asyncs.Initializers;
 using Soenneker.Utils.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,8 +14,8 @@ namespace Soenneker.Blazor.Stripe.Elements;
 public sealed class StripeElementsInterop : IStripeElementsInterop
 {
     private readonly IResourceLoader _resourceLoader;
-    private readonly AsyncSingleton _stripeJsInitializer;
-    private readonly AsyncSingleton _scriptInitializer;
+    private readonly AsyncInitializer _stripeJsInitializer;
+    private readonly AsyncInitializer _scriptInitializer;
 
     private readonly IJSRuntime _jsRuntime;
 
@@ -27,17 +27,15 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         _jsRuntime = jSRuntime;
         _resourceLoader = resourceLoader;
 
-        _stripeJsInitializer = new AsyncSingleton(async (token, _) =>
+        _stripeJsInitializer = new AsyncInitializer(async token =>
         {
             await _resourceLoader.LoadScript("https://js.stripe.com/v3/", async: true, cancellationToken: token);
-            return new object();
         });
 
-        _scriptInitializer = new AsyncSingleton(async (token, _) =>
+        _scriptInitializer = new AsyncInitializer(async token =>
         {
             await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token);
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
-            return new object();
         });
     }
 
