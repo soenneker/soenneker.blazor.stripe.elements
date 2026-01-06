@@ -30,9 +30,9 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         _scriptInitializer = new AsyncInitializer(InitializeScript);
     }
 
-    private async ValueTask InitializeStripeJs(CancellationToken token)
+    private ValueTask InitializeStripeJs(CancellationToken token)
     {
-        await _resourceLoader.LoadScript("https://js.stripe.com/v3/", async: true, cancellationToken: token);
+        return _resourceLoader.LoadScript("https://js.stripe.com/v3/", async: true, cancellationToken: token);
     }
 
     private async ValueTask InitializeScript(CancellationToken token)
