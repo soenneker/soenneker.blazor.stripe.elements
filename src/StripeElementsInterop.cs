@@ -26,17 +26,20 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
     {
         _jsRuntime = jSRuntime;
         _resourceLoader = resourceLoader;
+        _stripeJsInitializer = new AsyncInitializer(InitializeStripeJs);
+        _scriptInitializer = new AsyncInitializer(InitializeScript);
+    }
 
-        _stripeJsInitializer = new AsyncInitializer(async token =>
-        {
-            await _resourceLoader.LoadScript("https://js.stripe.com/v3/", async: true, cancellationToken: token);
-        });
+    private async ValueTask InitializeStripeJs(CancellationToken token)
+    {
+        await _resourceLoader.LoadScript("https://js.stripe.com/v3/", async: true, cancellationToken: token);
+    }
 
-        _scriptInitializer = new AsyncInitializer(async token =>
-        {
-            await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token);
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
-        });
+    private async ValueTask InitializeScript(CancellationToken token)
+    {
+        await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token);
+        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
+    }
     }
 
     public ValueTask LoadStripe(CancellationToken cancellationToken = default)
@@ -52,7 +55,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.createObserver", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.createObserver", cancellationToken, elementId);
     }
 
     public async ValueTask Create(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef, StripeElementsConfiguration elementsConfiguration,
@@ -60,35 +63,35 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
     {
         await _scriptInitializer.Init(cancellationToken);
         string? json = JsonUtil.Serialize(elementsConfiguration);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementId, json, dotNetObjectRef);
+        await _jsRuntime.InvokeVoidAsync("StripeElementsInterop.create", cancellationToken, elementId, json, dotNetObjectRef);
     }
 
     public ValueTask<StripeConfirmResult?> ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeAsync<StripeConfirmResult?>($"{_moduleName}.confirmPayment", cancellationToken, elementId, paymentIntentClientSecret,
+        return _jsRuntime.InvokeAsync<StripeConfirmResult?>("StripeElementsInterop.confirmPayment", cancellationToken, elementId, paymentIntentClientSecret,
             returnUrl);
     }
 
     public ValueTask<StripeSubmitResult?> Submit(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeAsync<StripeSubmitResult?>($"{_moduleName}.submit", cancellationToken, elementId);
+        return _jsRuntime.InvokeAsync<StripeSubmitResult?>("StripeElementsInterop.submit", cancellationToken, elementId);
     }
 
     public ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeAsync<StripeConfirmResult?>($"{_moduleName}.confirmSetup", cancellationToken, elementId, setupIntentClientSecret, returnUrl);
+        return _jsRuntime.InvokeAsync<StripeConfirmResult?>("StripeElementsInterop.confirmSetup", cancellationToken, elementId, setupIntentClientSecret, returnUrl);
     }
 
     public ValueTask Update(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.update", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.update", cancellationToken, elementId);
     }
 
     public ValueTask Unmount(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmountGroup", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.unmountGroup", cancellationToken, elementId);
     }
 
     public async ValueTask DisposeAsync()
