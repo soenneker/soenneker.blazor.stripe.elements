@@ -40,7 +40,6 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token);
         await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
     }
-    }
 
     public ValueTask LoadStripe(CancellationToken cancellationToken = default)
     {
@@ -81,7 +80,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
     public ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeAsync<StripeConfirmResult?>("StripeElementsInterop.confirmSetup", cancellationToken, elementId, setupIntentClientSecret, returnUrl);
+        return _jsRuntime.InvokeAsync<StripeConfirmResult?>("StripeElementsInterop.confirmSetup", cancellationToken, elementId, setupIntentClientSecret,
+            returnUrl);
     }
 
     public ValueTask Update(string elementId, CancellationToken cancellationToken = default)
