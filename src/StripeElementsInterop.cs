@@ -45,12 +45,12 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
     }
 
-    public ValueTask LoadStripe(CancellationToken cancellationToken = default)
+    public async ValueTask LoadStripe(CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
-            return _stripeJsInitializer.Init(linked);
+            await _stripeJsInitializer.Init(linked);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
@@ -64,12 +64,12 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         }
     }
 
-    public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
+    public async ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
-            return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.createObserver", linked, elementId);
+            await _jsRuntime.InvokeVoidAsync("StripeElementsInterop.createObserver", linked, elementId);
     }
 
     public async ValueTask Create(string elementId, DotNetObjectReference<StripeElements> dotNetObjectRef, StripeElementsConfiguration elementsConfiguration,
@@ -85,48 +85,48 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         }
     }
 
-    public ValueTask<StripeConfirmResult?> ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl,
+    public async ValueTask<StripeConfirmResult?> ConfirmPayment(string elementId, string paymentIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
-            return _jsRuntime.InvokeAsync<StripeConfirmResult?>("StripeElementsInterop.confirmPayment", linked, elementId, paymentIntentClientSecret,
-            returnUrl);
+            return await _jsRuntime.InvokeAsync<StripeConfirmResult?>("StripeElementsInterop.confirmPayment", linked, elementId, paymentIntentClientSecret,
+                returnUrl);
     }
 
-    public ValueTask<StripeSubmitResult?> Submit(string elementId, CancellationToken cancellationToken = default)
+    public async ValueTask<StripeSubmitResult?> Submit(string elementId, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
-            return _jsRuntime.InvokeAsync<StripeSubmitResult?>("StripeElementsInterop.submit", linked, elementId);
+            return await _jsRuntime.InvokeAsync<StripeSubmitResult?>("StripeElementsInterop.submit", linked, elementId);
     }
 
-    public ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl,
+    public async ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl,
         CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
-            return _jsRuntime.InvokeAsync<StripeConfirmResult?>("StripeElementsInterop.confirmSetup", linked, elementId, setupIntentClientSecret,
-            returnUrl);
+            return await _jsRuntime.InvokeAsync<StripeConfirmResult?>("StripeElementsInterop.confirmSetup", linked, elementId, setupIntentClientSecret,
+                returnUrl);
     }
 
-    public ValueTask Update(string elementId, CancellationToken cancellationToken = default)
+    public async ValueTask Update(string elementId, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
-            return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.update", linked, elementId);
+            await _jsRuntime.InvokeVoidAsync("StripeElementsInterop.update", linked, elementId);
     }
 
-    public ValueTask Unmount(string elementId, CancellationToken cancellationToken = default)
+    public async ValueTask Unmount(string elementId, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
-            return _jsRuntime.InvokeVoidAsync("StripeElementsInterop.unmountGroup", linked, elementId);
+            await _jsRuntime.InvokeVoidAsync("StripeElementsInterop.unmountGroup", linked, elementId);
     }
 
     public async ValueTask DisposeAsync()
