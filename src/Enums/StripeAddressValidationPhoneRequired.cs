@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Validation requirement for the phone field.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeAddressValidationPhoneRequired
 {
     /// <summary>Phone is always required.</summary>

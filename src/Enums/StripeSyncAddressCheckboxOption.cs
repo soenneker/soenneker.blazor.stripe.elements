@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Which Address Element (if any) should display a checkbox for syncing billing/shipping.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeSyncAddressCheckboxOption
 {
     /// <summary>Show the checkbox in the billing Address Element.</summary>

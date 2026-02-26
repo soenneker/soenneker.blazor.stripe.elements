@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Controls how payment authorization is captured.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeElementsCaptureMethod
 {
     /// <summary>Capture payment automatically when authorized.</summary>

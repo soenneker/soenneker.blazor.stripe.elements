@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// When to show the phone field in the Address Element.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class StripeAddressFieldsPhoneOption
 {
     /// <summary>Always show the phone field.</summary>

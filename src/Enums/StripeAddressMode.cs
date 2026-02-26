@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Mode of the Address Element — determines how the address is used.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeAddressMode
 {
     /// <summary>Use the address as a shipping address.</summary>

@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Stripe Elements base theme. Defines default styles for all components.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeElementsTheme
 {
     /// <summary>The default Stripe theme.</summary>

@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Indicates whether the collected payment method will be reused and when.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeElementsSetupFutureUsage
 {
     /// <summary>Payment method will be reused while the customer is present (in-session).</summary>

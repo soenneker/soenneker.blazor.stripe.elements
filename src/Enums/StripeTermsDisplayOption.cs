@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// When to display terms or mandate agreements in the Payment Element.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeTermsDisplayOption
 {
     /// <summary>Let Stripe determine if terms are needed (default).</summary>

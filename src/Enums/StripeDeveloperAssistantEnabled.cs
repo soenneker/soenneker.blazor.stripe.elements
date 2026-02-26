@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Toggles the developer assistant sandbox UI when using Elements with Checkout.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeDeveloperAssistantEnabled
 {
     /// <summary>Enable the sandbox assistant UI.</summary>

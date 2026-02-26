@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// The autocomplete mode for the Stripe Address Element.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class StripeAddressAutocompleteMode
 {
     /// <summary>Enable Stripe’s default automatic behavior.</summary>

@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Controls when the skeleton loader is displayed for Elements.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeElementsLoader
 {
     /// <summary>Let Stripe decide when to show the loader.</summary>

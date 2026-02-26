@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Controls visibility of wallet payment options (Apple Pay, Google Pay, etc.).
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeWalletDisplayOption
 {
     /// <summary>Show wallet options if available.</summary>

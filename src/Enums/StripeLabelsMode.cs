@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Controls label behavior for Stripe Elements fields.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripeLabelsMode
 {
     /// <summary>Labels appear above form fields.</summary>

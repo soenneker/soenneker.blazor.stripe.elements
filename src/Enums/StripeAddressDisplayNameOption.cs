@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// How to display name fields in the Address Element.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class StripeAddressDisplayNameOption
 {
     /// <summary>Display a single full name field.</summary>

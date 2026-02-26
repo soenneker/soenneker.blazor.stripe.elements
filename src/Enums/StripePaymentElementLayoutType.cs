@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.Stripe.Elements.Enums;
 
 /// <summary>
 /// Defines the layout type for the Stripe Payment Element: "accordion" or "tabs".
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class StripePaymentElementLayoutType
 {
     public static readonly StripePaymentElementLayoutType Accordion = new("accordion");
