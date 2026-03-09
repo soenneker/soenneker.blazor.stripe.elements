@@ -1,23 +1,24 @@
-﻿[![](https://img.shields.io/nuget/v/soenneker.blazor.stripe.elements.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.blazor.stripe.elements/)
+[![](https://img.shields.io/nuget/v/soenneker.blazor.stripe.elements.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.blazor.stripe.elements/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.blazor.stripe.elements/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.blazor.stripe.elements/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.blazor.stripe.elements.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.blazor.stripe.elements/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.blazor.stripe.elements/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.blazor.stripe.elements/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Blazor.Stripe.Elements
 
-**A modular, strongly-typed Blazor library for Stripe Elements** — designed to provide first-class C# configuration and deep interop with Stripe.js. Built for modern Blazor projects using Stripe's Payment, Link Authentication, and Address Elements.
+**A modular, strongly-typed Blazor library for Stripe Elements** � designed to provide first-class C# configuration and deep interop with Stripe.js. Built for modern Blazor projects using Stripe's Payment, Link Authentication, and Address Elements.
 
-## ✨ Features
+## ? Features
 
-* 🔌 **Blazor-native components** for `<StripeElements>`, `<StripePaymentElement>`, `<StripeLinkAuthenticationElement>`, and `<StripeAddressElement>`
-* 🧠 **Fully configurable via C#** — with strong typing for all supported options, including appearance, locale, currency, developer tools, and more
-* 🎨 **Appearance API support** with extensible theming and rule control
-* 📦 **Supports SetupIntents**, on-submit hooks, and validation workflows
-* 🧪 Compatible with Stripe test environments and developer tooling
-* 🔄 Seamless async interop with Stripe.js lifecycle
+* ?? **Blazor-native components** for `<StripeElements>`, `<StripePaymentElement>`, `<StripeLinkAuthenticationElement>`, and `<StripeAddressElement>`
+* ?? **Fully configurable via C#** � with strong typing for all supported options, including appearance, locale, currency, developer tools, and more
+* ?? **Appearance API support** with extensible theming and rule control
+* ?? **Supports SetupIntents**, on-submit hooks, and validation workflows
+* ?? Compatible with Stripe test environments and developer tooling
+* ?? Seamless async interop with Stripe.js lifecycle
 
 <img src="https://github.com/user-attachments/assets/a2f8777a-02e0-40de-afd6-fe4d1211427b" width="80%"></img>
 
-## 📦 Installation
+## ?? Installation
 
 ```bash
 dotnet add package Soenneker.Blazor.Stripe.Elements
@@ -25,7 +26,7 @@ dotnet add package Soenneker.Blazor.Stripe.Elements
 
 ---
 
-## 🛠️ Usage
+## ??? Usage
 
 ### 1. Register Stripe in your Blazor project
 
@@ -81,7 +82,7 @@ _config = new StripeElementsConfiguration
 
 ---
 
-## ✅ Components
+## ? Components
 
 | Component                         | Purpose                                    |
 | --------------------------------- | ------------------------------------------ |
@@ -93,11 +94,11 @@ _config = new StripeElementsConfiguration
 
 ---
 
-## 🔗 Official Stripe Docs
+## ?? Official Stripe Docs
 
-* 🌐 [Stripe Elements Overview](https://docs.stripe.com/elements)
-* ⚙️ [Elements JavaScript API Reference](https://docs.stripe.com/js/element)
-* 💳 [Payment Element](https://docs.stripe.com/js/element/payment_element)
-* 📬 [Address Element](https://docs.stripe.com/js/element/address_element)
-* 🔐 [Link Authentication Element](https://docs.stripe.com/js/element/link_authentication_element)
-* 🎨 [Appearance API (Theme & Styling)](https://docs.stripe.com/elements/appearance-api)
+* ?? [Stripe Elements Overview](https://docs.stripe.com/elements)
+* ?? [Elements JavaScript API Reference](https://docs.stripe.com/js/element)
+* ?? [Payment Element](https://docs.stripe.com/js/element/payment_element)
+* ?? [Address Element](https://docs.stripe.com/js/element/address_element)
+* ?? [Link Authentication Element](https://docs.stripe.com/js/element/link_authentication_element)
+* ?? [Appearance API (Theme & Styling)](https://docs.stripe.com/elements/appearance-api)
