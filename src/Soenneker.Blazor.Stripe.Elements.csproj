@@ -47,7 +47,7 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.439" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.3899" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1619" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1621" />
         <PackageReference Include="Soenneker.Dtos.Stripe.Error" Version="4.0.144" />
         <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="4.0.50" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.50" />
