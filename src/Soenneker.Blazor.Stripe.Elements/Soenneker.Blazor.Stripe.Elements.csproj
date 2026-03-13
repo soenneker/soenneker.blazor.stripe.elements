@@ -53,6 +53,6 @@
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1626" />
         <PackageReference Include="Soenneker.Dtos.Stripe.Error" Version="4.0.158" />
         <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="4.0.61" />
-        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.58" />
+        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.59" />
     </ItemGroup>
 </Project>
