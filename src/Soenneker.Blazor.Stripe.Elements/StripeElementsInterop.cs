@@ -42,7 +42,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
     private async ValueTask InitializeScript(CancellationToken token)
     {
         await _resourceLoader.WaitForVariable("Stripe", cancellationToken: token);
-        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
+        await _resourceLoader.ImportModule(_module, token);
     }
 
     public async ValueTask LoadStripe(CancellationToken cancellationToken = default)
