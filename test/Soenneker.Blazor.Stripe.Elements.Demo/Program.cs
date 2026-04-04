@@ -10,6 +10,7 @@ using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
 using Soenneker.Blazor.Stripe.Elements.Registrars;
+using Soenneker.Quark.Gen.Lucide.Generated;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 
 namespace Soenneker.Blazor.Stripe.Elements.Demo;
@@ -34,6 +35,7 @@ public class Program
 
             builder.Services.AddStripeElementsInteropAsScoped();
             builder.Services.AddQuarkSuiteAsScoped();
+            builder.Services.AddLucideIconsAsScoped();
 
             WebAssemblyHost host = builder.Build();
 

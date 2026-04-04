@@ -15,25 +15,21 @@
 
 @inject ILogger<Index> Logger
 
-<Container class="py-5" >
-    <div class="text-center mb-4" >
-        <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" style="height: 60px;" />
-        <h1 class="mt-3 fw-semibold" >Stripe Elements Demo</h1>
-        <p class="text-muted" >A clean integration demo of Soenneker.Blazor.Stripe.Elements</p>
-    </div>
+<PageTitle>Stripe Elements Demo</PageTitle>
 
-    <StripeElements @ref="_stripeElements" Configuration="_config" >
+<Div Space="Space.Y.Is6">
+    <StripeElements @ref="_stripeElements" Configuration="_config">
         <StripeAddressElement />
         <StripeLinkAuthenticationElement />
         <StripePaymentElement />
 
-        <Button Loading="_buttonLoading" Color="Color.Primary" Clicked="Submit" >Submit</Button>
+        <Button Loading="_buttonLoading" OnClick="Submit">Submit</Button>
     </StripeElements>
 
-    <div class="mt-4 pt-3 border-top" >
-        <Anchor To="/second" >Go to second</Anchor>
-    </div>
-</Container>
+    <Div Border="Border.Is1.FromTop" BorderColor="BorderColor.Border" Padding="Padding.Is4.FromTop">
+        <Anchor To="/second" TextSize="TextSize.Sm">Second page</Anchor>
+    </Div>
+</Div>
 
 @code {
     private StripeElements? _stripeElements;
@@ -46,13 +42,13 @@
     {
         _config = new StripeElementsConfiguration
         {
-                PublishableKey = "pk_test_51RAbNTHFEwQJtYP8N24BoijiCt43QWexDVyOm6yuhE0z5rVHEM0GZsDrAaN53n1kWCHGC1aPV5LIHB4pTB3us8BN00O0Pa4j1g",
+            PublishableKey = "pk_test_51RAbNTHFEwQJtYP8N24BoijiCt43QWexDVyOm6yuhE0z5rVHEM0GZsDrAaN53n1kWCHGC1aPV5LIHB4pTB3us8BN00O0Pa4j1g",
 
             InitializationOptions = new StripeInitializationOptions
             {
                 DeveloperTools = new StripeDeveloperToolsOptions
                 {
-                    Assistant = new StripeDeveloperAssistantOptions {Enabled = true}
+                    Assistant = new StripeDeveloperAssistantOptions { Enabled = true }
                 }
             },
 
@@ -61,7 +57,7 @@
                 Appearance = new StripeAppearance
                 {
                     Theme = StripeElementsTheme.Flat,
-                    Variables = new Dictionary<string, string> {["borderRadius"] = "0px",}
+                    Variables = new Dictionary<string, string> { ["borderRadius"] = "0px", }
                 },
                 Locale = "auto",
                 Mode = StripeElementsMode.Setup,
@@ -78,7 +74,7 @@
 
             PaymentOptions = new StripePaymentElementOptions
             {
-                Layout = new StripePaymentElementLayout {Type = StripePaymentElementLayoutType.Tabs}
+                Layout = new StripePaymentElementLayout { Type = StripePaymentElementLayoutType.Tabs }
             },
 
             AddressOptions = new StripeAddressOptions
@@ -145,5 +141,4 @@
             StateHasChanged();
         }
     }
-
 }
