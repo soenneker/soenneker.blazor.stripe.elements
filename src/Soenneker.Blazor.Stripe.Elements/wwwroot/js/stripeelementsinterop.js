@@ -1,26 +1,22 @@
-﻿export class StripeElementsInterop {
-    constructor() {
-        this.stripeElementsGroups = [];
-        this.observers = new Map();
-        this._stripeCache = new Map();
-    }
+﻿const stripeElementsGroups = [];
+const stripeObservers = new Map();
+const stripeCache = new Map();
 
-    _getStripe(publishableKey) {
-        if (!this._stripeCache.has(publishableKey)) {
-            this._stripeCache.set(publishableKey, window.Stripe(publishableKey));
+function getStripe(publishableKey) {
+        if (!stripeCache.has(publishableKey)) {
+            stripeCache.set(publishableKey, window.Stripe(publishableKey));
         }
-        return this._stripeCache.get(publishableKey);
-    }
-
-    async create(groupId, configJson, dotNetCallback) {
-        if (this._findGroup(groupId)) {
+        return stripeCache.get(publishableKey);
+}
+export async function create(groupId, configJson, dotNetCallback) {
+        if (findStripeGroup(groupId)) {
             console.warn(`Group "${groupId}" already exists. Skipping creation.`);
             return;
         }
 
         const config = JSON.parse(configJson);
 
-        const stripe = this._getStripe(config.publishableKey);
+        const stripe = getStripe(config.publishableKey);
         const elements = stripe.elements(config.elementsOptions ?? {});
 
         const group = {
@@ -79,7 +75,7 @@
                 }
             }
 
-            this.stripeElementsGroups.push(group);
+            stripeElementsGroups.push(group);
 
             try {
                 await dotNetCallback.invokeMethodAsync("OnInitializedJs");
@@ -89,12 +85,11 @@
 
         } catch (e) {
             console.error("Error during element creation, rolling back group:", e);
-            this.unmountGroup(groupId);
+            unmountGroup(groupId);
         }
-    }
-
-    async confirmPayment(groupId, clientSecret, returnUrl) {
-        const group = this._findGroup(groupId);
+    };
+export async function confirmPayment(groupId, clientSecret, returnUrl) {
+        const group = findStripeGroup(groupId);
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for confirmPayment.`);
             return;
@@ -108,10 +103,9 @@
             },
             redirect: "if_required"
         });
-    }
-
-    async submit(groupId) {
-        const group = this._findGroup(groupId);
+    };
+export async function submit(groupId) {
+        const group = findStripeGroup(groupId);
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for submit.`);
             return { error: { message: "Group not found" } };
@@ -124,10 +118,9 @@
             console.warn(`Stripe elements.submit() failed: ${e?.message}`);
             return { error: { message: e?.message ?? "Unknown error during submit" } };
         }
-    }
-
-    update(groupId) {
-        const group = this._findGroup(groupId);
+    };
+export function update(groupId) {
+        const group = findStripeGroup(groupId);
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for update.`);
             return;
@@ -143,10 +136,9 @@
                 }
             }
         }
-    }
-
-    async confirmSetup(groupId, clientSecret, returnUrl) {
-        const group = this._findGroup(groupId);
+    };
+export async function confirmSetup(groupId, clientSecret, returnUrl) {
+        const group = findStripeGroup(groupId);
         if (!group) {
             console.error(`StripeElements group "${groupId}" not found for confirmSetup.`);
             return;
@@ -160,10 +152,9 @@
             },
             redirect: "if_required"
         });
-    }
-
-    unmountGroup(groupId) {
-        const group = this._findGroup(groupId);
+    };
+export function unmountGroup(groupId) {
+        const group = findStripeGroup(groupId);
         if (!group) return;
 
         Object.values(group.components).forEach(component => {
@@ -177,19 +168,21 @@
             }
         });
 
-        this.stripeElementsGroups = this.stripeElementsGroups.filter(g => g.id !== groupId);
-        this._disconnectObserver(groupId);
-    }
+        const groupIndex = stripeElementsGroups.findIndex(g => g.id === groupId);
+        if (groupIndex > -1) {
+            stripeElementsGroups.splice(groupIndex, 1);
+        }
 
-    _disconnectObserver(groupId) {
-        const observer = this.observers.get(groupId);
+        disconnectStripeObserver(groupId);
+    };
+function disconnectStripeObserver(groupId) {
+        const observer = stripeObservers.get(groupId);
         if (observer) {
             observer.disconnect();
-            this.observers.delete(groupId);
+            stripeObservers.delete(groupId);
         }
-    }
-
-    createObserver(groupId) {
+    };
+export function createObserver(groupId) {
         const target = document.getElementById(groupId);
         if (!target) {
             console.warn(`Target element "${groupId}" not found for observer.`);
@@ -202,19 +195,15 @@
             );
 
             if (targetRemoved) {
-                this.unmountGroup(groupId);
+                unmountGroup(groupId);
             }
         });
 
         if (target?.parentNode) {
             observer.observe(target.parentNode, { childList: true });
-            this.observers.set(groupId, observer);
+            stripeObservers.set(groupId, observer);
         }
-    }
-
-    _findGroup(groupId) {
-        return this.stripeElementsGroups.find(g => g.id === groupId);
-    }
-}
-
-window.StripeElementsInterop = new StripeElementsInterop();
+    };
+function findStripeGroup(groupId) {
+        return stripeElementsGroups.find(g => g.id === groupId);
+    };
