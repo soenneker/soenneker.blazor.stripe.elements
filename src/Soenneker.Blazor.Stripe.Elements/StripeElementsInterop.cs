@@ -21,7 +21,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
     private readonly AsyncInitializer _stripeJsInitializer;
     private readonly AsyncInitializer _scriptInitializer;
 
-    private const string _wrapperModulePath = "/_content/Soenneker.Blazor.Stripe.Elements/js/stripeelementsinterop.js";
+    private const string _wrapperModulePath = "_content/Soenneker.Blazor.Stripe.Elements/js/stripeelementsinterop.js";
 
     private readonly CancellationScope _cancellationScope = new();
 
