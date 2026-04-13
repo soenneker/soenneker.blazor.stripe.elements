@@ -6,6 +6,7 @@
 @using Soenneker.Blazor.Stripe.Elements.Dtos
 @using Soenneker.Extensions.CancellationTokens
 @using Soenneker.Extensions.String
+@using Soenneker.Blazor.Utils.Ids
 
 @inject IStripeElementsInterop StripeElementsInterop
 
@@ -45,7 +46,7 @@
     public EventCallback<StripeConfirmResult?> OnAfterConfirmSetup { get; set; }
 
     [Parameter]
-    public override string? Id { get; set; } = $"stripe-elements-{Guid.NewGuid()}";
+    public override string? Id { get; set; } = BlazorIdGenerator.New("stripe-elements");
 
     private DotNetObjectReference<StripeElements>? _dotNetReference;
 
@@ -60,9 +61,9 @@
 
     public Dictionary<Type, string> ElementIds { get; set; } = new()
     {
-        {typeof(StripeAddressElement), $"stripe-address-{Guid.NewGuid()}"},
-        {typeof(StripeLinkAuthenticationElement), $"stripe-link-auth-{Guid.NewGuid()}"},
-        {typeof(StripePaymentElement), $"stripe-payment-{Guid.NewGuid()}"}
+        {typeof(StripeAddressElement), BlazorIdGenerator.New("stripe-address")},
+        {typeof(StripeLinkAuthenticationElement), BlazorIdGenerator.New("stripe-link-auth")},
+        {typeof(StripePaymentElement), BlazorIdGenerator.New("stripe-payment")}
     };
 
     private bool _initialized;
