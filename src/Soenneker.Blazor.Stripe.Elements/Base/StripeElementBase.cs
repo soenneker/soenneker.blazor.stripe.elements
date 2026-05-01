@@ -15,4 +15,14 @@ public abstract class StripeElementBase : LeptonIdentifiableElement
         ElementIds != null && ElementIds.TryGetValue(GetType(), out string? id)
             ? id
             : BlazorIdGenerator.New("stripe-element"); // fallback if not defined
+
+    protected Dictionary<string, object> ElementAttributes
+    {
+        get
+        {
+            Dictionary<string, object> attributes = BuildAttributes();
+            attributes["id"] = ElementId;
+            return attributes;
+        }
+    }
 }
