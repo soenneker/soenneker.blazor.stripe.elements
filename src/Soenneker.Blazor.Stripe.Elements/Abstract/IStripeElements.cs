@@ -5,14 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark;
+using Soenneker.Lepton.Suite.Abstract;
 
 namespace Soenneker.Blazor.Stripe.Elements.Abstract;
 
 /// <summary>
 /// A Blazor component interface for interacting with Stripe Elements.
 /// </summary>
-public interface IStripeElements : ICoreCancellableElement
+public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
 {
     /// <summary>
     /// Whether to manually initialize the Stripe Elements component.

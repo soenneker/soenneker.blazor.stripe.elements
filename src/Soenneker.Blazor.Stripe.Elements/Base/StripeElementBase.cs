@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using Soenneker.Blazor.Utils.Ids;
-using Soenneker.Quark;
+using Soenneker.Lepton.Suite;
 
 namespace Soenneker.Blazor.Stripe.Elements.Base;
 
-public abstract class StripeElementBase : CoreComponent
+public abstract class StripeElementBase : LeptonIdentifiableElement
 {
     [CascadingParameter]
     public Dictionary<Type, string>? ElementIds { get; set; }

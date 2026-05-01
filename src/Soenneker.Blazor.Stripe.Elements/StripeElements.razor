@@ -10,10 +10,10 @@
 
 @inject IStripeElementsInterop StripeElementsInterop
 
-@inherits Soenneker.Quark.CoreCancellableElement
+@inherits Soenneker.Lepton.Suite.LeptonCancellableIdentifiableContentElement
 @implements IStripeElements
 
-<div id="@Id" @attributes="Attributes">
+<div id="@Id" @attributes="EffectiveAttributes">
     <CascadingValue Value="ElementIds" >
         @ChildContent
     </CascadingValue>
@@ -44,9 +44,10 @@
 
     [Parameter]
     public EventCallback<StripeConfirmResult?> OnAfterConfirmSetup { get; set; }
-
-    [Parameter]
-    public override string? Id { get; set; } = BlazorIdGenerator.New("stripe-elements");
+    public StripeElements()
+    {
+        Id = BlazorIdGenerator.New("stripe-elements");
+    }
 
     private DotNetObjectReference<StripeElements>? _dotNetReference;
 
