@@ -75,6 +75,12 @@ public interface IStripeElementsInterop : IAsyncDisposable
     /// <returns>A task representing the asynchronous operation, returning the full Stripe confirmation result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Executes the update operation.
+    /// </summary>
+    /// <param name="elementId">The element id.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     ValueTask Update(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>

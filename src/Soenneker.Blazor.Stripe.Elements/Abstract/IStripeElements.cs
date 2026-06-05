@@ -70,6 +70,11 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// <param name="cancellationToken">A token to cancel the initialization operation.</param>
     ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Executes the load stripe operation.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     ValueTask LoadStripe(CancellationToken cancellationToken = default);
 
     /// <summary>

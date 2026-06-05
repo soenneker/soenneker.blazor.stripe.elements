@@ -7,6 +7,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Configuration.Payment;
 /// </summary>
 public class StripeBusinessInfo
 {
+    /// <summary>
+    /// Gets or sets name.
+    /// </summary>
     [JsonPropertyName("name")]
     public string? Name { get; set; }
 }

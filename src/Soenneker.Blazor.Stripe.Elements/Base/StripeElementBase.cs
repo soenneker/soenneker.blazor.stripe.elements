@@ -6,8 +6,14 @@ using Soenneker.Lepton.Suite;
 
 namespace Soenneker.Blazor.Stripe.Elements.Base;
 
+/// <summary>
+/// Represents the stripe element base.
+/// </summary>
 public abstract class StripeElementBase : LeptonIdentifiableElement
 {
+    /// <summary>
+    /// Gets or sets element ids.
+    /// </summary>
     [CascadingParameter]
     public Dictionary<Type, string>? ElementIds { get; set; }
 

@@ -7,6 +7,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Configuration.Payment;
 /// </summary>
 public sealed class StripePaymentFields
 {
+    /// <summary>
+    /// Gets or sets billing details.
+    /// </summary>
     [JsonPropertyName("billingDetails")]
     public StripeBillingDetailsCollection? BillingDetails { get; set; }
 }
