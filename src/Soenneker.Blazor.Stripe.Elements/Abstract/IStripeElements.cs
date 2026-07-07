@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
 using Soenneker.Blazor.Stripe.Elements.Dtos;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,11 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     EventCallback OnLinkAuthenticationElementReady { get; set; }
 
     /// <summary>
+    /// Invoked specifically when the Checkout Contact Details Element iframe has finished rendering and is interactive.
+    /// </summary>
+    EventCallback OnContactDetailsElementReady { get; set; }
+
+    /// <summary>
     /// Invoked after the Submit operation completes, regardless of success or failure.
     /// </summary>
     EventCallback<StripeSubmitResult?> OnAfterSubmit { get; set; }
@@ -62,6 +68,11 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// Invoked after the ConfirmSetup operation completes, regardless of success or failure.
     /// </summary>
     EventCallback<StripeConfirmResult?> OnAfterConfirmSetup { get; set; }
+
+    /// <summary>
+    /// Invoked after the ConfirmCheckout operation completes, regardless of success or failure.
+    /// </summary>
+    EventCallback<StripeConfirmResult?> OnAfterConfirmCheckout { get; set; }
 
     /// <summary>
     /// Initializes the Stripe Elements component with the specified configuration.
@@ -102,6 +113,14 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// <param name="setupIntentClientSecret">Optional: The client secret for the SetupIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     ValueTask<StripeConfirmResult?> ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirms a Checkout Session using the Checkout Sessions Elements SDK.
+    /// </summary>
+    /// <param name="returnUrl">Optional return URL to redirect to after confirmation.</param>
+    /// <param name="options">Optional confirmation details to pass to Checkout.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    ValueTask<StripeConfirmResult?> ConfirmCheckout(string? returnUrl = null, StripeCheckoutConfirmOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Calls update() on all mounted Stripe elements in the group, typically used after DOM becomes visible (e.g. in tabs or modals).

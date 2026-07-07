@@ -7,6 +7,7 @@
 @using Soenneker.Extensions.CancellationTokens
 @using Soenneker.Extensions.String
 @using Soenneker.Blazor.Utils.Ids
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout
 
 @inject IStripeElementsInterop StripeElementsInterop
 
@@ -37,6 +38,9 @@
     public EventCallback OnLinkAuthenticationElementReady { get; set; }
 
     [Parameter]
+    public EventCallback OnContactDetailsElementReady { get; set; }
+
+    [Parameter]
     public EventCallback<StripeSubmitResult?> OnAfterSubmit { get; set; }
 
     [Parameter]
@@ -44,6 +48,9 @@
 
     [Parameter]
     public EventCallback<StripeConfirmResult?> OnAfterConfirmSetup { get; set; }
+
+    [Parameter]
+    public EventCallback<StripeConfirmResult?> OnAfterConfirmCheckout { get; set; }
     public StripeElements()
     {
         Id = BlazorIdGenerator.New("stripe-elements");
@@ -63,6 +70,7 @@
     public Dictionary<Type, string> ElementIds { get; set; } = new()
     {
         {typeof(StripeAddressElement), BlazorIdGenerator.New("stripe-address")},
+        {typeof(StripeContactDetailsElement), BlazorIdGenerator.New("stripe-contact-details")},
         {typeof(StripeLinkAuthenticationElement), BlazorIdGenerator.New("stripe-link-auth")},
         {typeof(StripePaymentElement), BlazorIdGenerator.New("stripe-payment")}
     };
@@ -122,6 +130,7 @@
             throw new InvalidOperationException("StripeElements Configuration must be set");
 
         Configuration.AddressElementId ??= ElementIds[typeof(StripeAddressElement)];
+        Configuration.ContactDetailsElementId ??= ElementIds[typeof(StripeContactDetailsElement)];
         Configuration.LinkAuthenticationElementId ??= ElementIds[typeof(StripeLinkAuthenticationElement)];
         Configuration.PaymentElementId ??= ElementIds[typeof(StripePaymentElement)];
 
@@ -140,6 +149,9 @@
     {
         if (!_initialized)
             throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
+
+        if (Configuration?.CheckoutSessionOptions != null)
+            return await ConfirmCheckout(returnUrl, cancellationToken: cancellationToken);
 
         paymentIntentClientSecret ??= Configuration?.ElementsOptions?.ClientSecret;
 
@@ -160,6 +172,9 @@
     {
         if (!_initialized)
             throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
+
+        if (Configuration?.CheckoutSessionOptions != null)
+            return await ConfirmCheckout(returnUrl, cancellationToken: cancellationToken);
 
         setupIntentClientSecret ??= Configuration?.ElementsOptions?.ClientSecret;
 
@@ -187,6 +202,24 @@
         {
             StripeSubmitResult? result = await StripeElementsInterop.Submit(Id!, linked);
             await OnAfterSubmit.InvokeIfHasDelegate(result);
+            return result;
+        }
+    }
+
+    public async ValueTask<StripeConfirmResult?> ConfirmCheckout(string? returnUrl = null, StripeCheckoutConfirmOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
+
+        if (Configuration?.CheckoutSessionOptions == null)
+            throw new InvalidOperationException("CheckoutSessionOptions must be set to confirm a Checkout Session.");
+
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+        {
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmCheckout(Id!, returnUrl, options, linked);
+            await OnAfterConfirmCheckout.InvokeIfHasDelegate(result);
             return result;
         }
     }
@@ -235,6 +268,12 @@
     public Task OnLinkAuthenticationElementReadyJs()
     {
         return OnLinkAuthenticationElementReady.InvokeIfHasDelegate();
+    }
+
+    [JSInvokable("OnContactDetailsElementReadyJs")]
+    public Task OnContactDetailsElementReadyJs()
+    {
+        return OnContactDetailsElementReady.InvokeIfHasDelegate();
     }
 
     public override async ValueTask DisposeAsync()

@@ -1,5 +1,6 @@
 using Microsoft.JSInterop;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
 using Soenneker.Blazor.Stripe.Elements.Dtos;
 using System;
 using System.Threading;
@@ -74,6 +75,17 @@ public interface IStripeElementsInterop : IAsyncDisposable
     /// <param name="cancellationToken">A token that can be used to cancel the confirmation operation.</param>
     /// <returns>A task representing the asynchronous operation, returning the full Stripe confirmation result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirms a Checkout Session using the Checkout Sessions Elements SDK.
+    /// </summary>
+    /// <param name="elementId">The DOM element ID of the Stripe Elements group.</param>
+    /// <param name="returnUrl">Optional return URL to redirect to after confirmation.</param>
+    /// <param name="options">Optional confirmation details to pass to Checkout.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the confirmation operation.</param>
+    /// <returns>A task representing the asynchronous operation, returning the full Stripe confirmation result.</returns>
+    ValueTask<StripeConfirmResult?> ConfirmCheckout(string elementId, string? returnUrl = null, StripeCheckoutConfirmOptions? options = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes the update operation.

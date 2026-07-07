@@ -9,6 +9,7 @@ using Soenneker.Utils.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
 using Soenneker.Blazor.Stripe.Elements.Dtos;
 
 namespace Soenneker.Blazor.Stripe.Elements;
@@ -121,6 +122,19 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
             return await module.InvokeAsync<StripeConfirmResult?>("confirmSetup", linked, elementId, setupIntentClientSecret, returnUrl);
+        }
+    }
+
+    public async ValueTask<StripeConfirmResult?> ConfirmCheckout(string elementId, string? returnUrl = null, StripeCheckoutConfirmOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            string? json = options == null ? null : JsonUtil.Serialize(options);
+            return await module.InvokeAsync<StripeConfirmResult?>("confirmCheckout", linked, elementId, returnUrl, json);
         }
     }
 

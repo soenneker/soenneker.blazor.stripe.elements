@@ -8,8 +8,8 @@
 @using Soenneker.Blazor.Stripe.Elements.Configuration.Initialization
 @using Soenneker.Blazor.Stripe.Elements.Configuration.LinkAuthentication
 @using Soenneker.Blazor.Stripe.Elements.Configuration.Payment
+@using Soenneker.Blazor.Stripe.Elements.Dtos
 @using Soenneker.Blazor.Stripe.Elements.Enums
-@using Soenneker.Dtos.Stripe.Error
 @using Soenneker.Enums.CurrencyCodes
 @using Soenneker.Utils.AutoBogus
 
@@ -18,7 +18,12 @@
 <PageTitle>Stripe Elements Demo</PageTitle>
 
 <Div Space="Space.Y.Is6">
-    <StripeElements @ref="_stripeElements" Configuration="_config">
+    <StripeElements @ref="_stripeElements"
+                    Configuration="_config"
+                    OnAfterSubmit="StripeValidatePaymentCallback"
+                    OnAfterConfirmPayment="StripeSubmitPaymentCallback"
+                    OnAfterConfirmSetup="StripeSubmitPaymentCallback"
+                    OnAfterConfirmCheckout="StripeSubmitPaymentCallback">
         <StripeAddressElement />
         <StripeLinkAuthenticationElement />
         <StripePaymentElement />
@@ -113,32 +118,43 @@
         {
             Logger.LogError(ex, "Error validating payment");
             _buttonLoading = false;
+            StateHasChanged();
         }
     }
 
-    public async Task StripeValidatePaymentCallback(StripeErrorDto? stripeErrorDto)
+    public async Task StripeValidatePaymentCallback(StripeSubmitResult? submitResult)
     {
-        if (stripeErrorDto != null)
+        if (submitResult?.Error != null)
         {
             _buttonLoading = false;
             StateHasChanged();
             return;
         }
 
-        await ConfirmPayment();
-    }
+        if (_config?.CheckoutSessionOptions != null)
+        {
+            await _stripeElements!.ConfirmCheckout("https://localhost:7039");
+            return;
+        }
 
-    private async Task ConfirmPayment()
-    {
-        await _stripeElements!.ConfirmPayment("intent", "https://localhost:7039");
-    }
-
-    public async Task StripeSubmitPaymentCallback(StripeErrorDto? stripeErrorDto)
-    {
-        if (stripeErrorDto != null)
+        if (_config?.ElementsOptions.ClientSecret == null)
         {
             _buttonLoading = false;
             StateHasChanged();
+            return;
         }
+
+        await _stripeElements!.ConfirmSetup("https://localhost:7039");
+    }
+
+    public Task StripeSubmitPaymentCallback(StripeConfirmResult? confirmResult)
+    {
+        if (confirmResult?.Error != null)
+            Logger.LogWarning("Stripe confirmation failed: {Message}", confirmResult.Error.Message);
+
+        _buttonLoading = false;
+        StateHasChanged();
+
+        return Task.CompletedTask;
     }
 }

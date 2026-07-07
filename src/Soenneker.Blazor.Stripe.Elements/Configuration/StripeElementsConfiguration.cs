@@ -2,6 +2,8 @@ using Soenneker.Blazor.Stripe.Elements.Configuration.LinkAuthentication;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Payment;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Address;
 using System.Text.Json.Serialization;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
+using Soenneker.Blazor.Stripe.Elements.Configuration.ContactDetails;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Elements;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Initialization;
 
@@ -30,6 +32,24 @@ public sealed class StripeElementsConfiguration
     /// </summary>
     [JsonPropertyName("elementsOptions")]
     public StripeElementsOptions ElementsOptions { get; set; } = new();
+
+    /// <summary>
+    /// When set, initializes this group with Stripe's Checkout Sessions Elements SDK instead of <c>stripe.elements()</c>.
+    /// </summary>
+    [JsonPropertyName("checkoutSessionOptions")]
+    public StripeCheckoutSessionOptions? CheckoutSessionOptions { get; set; }
+
+    /// <summary>
+    /// The DOM element ID where the Checkout Contact Details Element should be mounted.
+    /// </summary>
+    [JsonPropertyName("contactDetailsElementId")]
+    public string? ContactDetailsElementId { get; set; }
+
+    /// <summary>
+    /// Set to mount the Checkout Contact Details Element.
+    /// </summary>
+    [JsonPropertyName("contactDetailsOptions")]
+    public StripeContactDetailsOptions? ContactDetailsOptions { get; set; }
 
     /// <summary>
     /// The DOM element ID where the Link Authentication Element should be mounted.
