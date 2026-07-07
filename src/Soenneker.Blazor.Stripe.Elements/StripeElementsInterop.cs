@@ -23,6 +23,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
     private readonly AsyncInitializer _scriptInitializer;
 
     private const string _wrapperModulePath = "_content/Soenneker.Blazor.Stripe.Elements/js/stripeelementsinterop.js";
+    private const string _stripeJsUrl = "https://js.stripe.com/dahlia/stripe.js";
 
     private readonly CancellationScope _cancellationScope = new();
 
@@ -36,7 +37,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
     private ValueTask InitializeStripeJs(CancellationToken token)
     {
-        return _resourceLoader.LoadScript("https://js.stripe.com/v3/", crossOrigin: "anonymous", loadInHead: false, async: true, defer: false,
+        return _resourceLoader.LoadScript(_stripeJsUrl, crossOrigin: "anonymous", loadInHead: false, async: true, defer: false,
             cancellationToken: token);
     }
 

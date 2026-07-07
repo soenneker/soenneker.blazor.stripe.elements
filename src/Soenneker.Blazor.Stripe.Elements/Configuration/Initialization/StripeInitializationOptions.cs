@@ -15,13 +15,6 @@ public sealed class StripeInitializationOptions
     public string? StripeAccount { get; set; }
 
     /// <summary>
-    /// Overrides your account's API version. Only available with Stripe.js v3.
-    /// Ignored in newer versions like Stripe.js Acacia.
-    /// </summary>
-    [JsonPropertyName("apiVersion")]
-    public string? ApiVersion { get; set; }
-
-    /// <summary>
     /// Locale used for localizing all Stripe.js error messages and Elements.
     /// Default is 'auto', which uses the browser's locale.
     /// </summary>

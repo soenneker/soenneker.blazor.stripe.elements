@@ -5698,11 +5698,6 @@
       flex-direction: column;
     }
   }
-  .data-\[position\=popper\]\:h-\(--radix-select-trigger-height\) {
-    &[data-position="popper"] {
-      height: var(--radix-select-trigger-height);
-    }
-  }
   .data-\[position\=popper\]\:w-full {
     &[data-position="popper"] {
       width: 100%;
