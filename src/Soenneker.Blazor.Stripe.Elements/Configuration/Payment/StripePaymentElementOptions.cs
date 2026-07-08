@@ -15,7 +15,7 @@ public sealed class StripePaymentElementOptions
     public StripePaymentElementLayout? Layout { get; set; }
 
     /// <summary>
-    /// Initial customer values such as email, name, phone.
+    /// Initial customer values such as email, name, phone. Used with <c>elements.create("payment", options)</c>; not accepted by Checkout's <c>checkout.createPaymentElement(options)</c>.
     /// </summary>
     [JsonPropertyName("defaultValues")]
     public StripePaymentElementDefaultValues? DefaultValues { get; set; }

@@ -9,7 +9,7 @@ namespace Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
 public sealed class StripeCheckoutDefaultValues
 {
     /// <summary>
-    /// Customer email address.
+    /// Customer email address for editable prefill. Do not set when the Checkout Session was created with customer_email or a Customer that already has an email.
     /// </summary>
     [JsonPropertyName("email")]
     public string? Email { get; set; }
