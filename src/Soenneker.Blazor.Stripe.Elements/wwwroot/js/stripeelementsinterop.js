@@ -373,7 +373,7 @@ function buildCheckoutOptions(config) {
         throw new Error("Checkout Session client secret is missing.");
     }
 
-    checkoutOptions.elementsOptions ??= buildCheckoutElementsOptions(config.elementsOptions);
+    checkoutOptions.elementsOptions = buildCheckoutElementsOptions(checkoutOptions.elementsOptions ?? config.elementsOptions);
 
     return checkoutOptions;
 }
@@ -386,8 +386,7 @@ function buildCheckoutElementsOptions(elementsOptions) {
     return removeUndefinedProperties({
         fonts: elementsOptions.fonts,
         appearance: elementsOptions.appearance,
-        loader: elementsOptions.loader,
-        locale: elementsOptions.locale
+        loader: elementsOptions.loader
     });
 }
 

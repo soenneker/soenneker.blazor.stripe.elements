@@ -28,7 +28,7 @@ public sealed class StripeElementsConfiguration
     public StripeInitializationOptions? InitializationOptions { get; set; }
 
     /// <summary>
-    /// Configuration for initializing the Stripe Elements instance itself (fonts, appearance, locale, etc.).
+    /// Configuration for initializing the Stripe Elements instance itself.
     /// </summary>
     [JsonPropertyName("elementsOptions")]
     public StripeElementsOptions ElementsOptions { get; set; } = new();
