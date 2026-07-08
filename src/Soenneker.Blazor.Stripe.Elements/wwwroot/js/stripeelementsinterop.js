@@ -312,12 +312,12 @@ function mountAddressElement(group, config, dotNetCallback) {
         return;
     }
 
-    const canCreateAddressElement = isCheckoutGroup(group)
-        ? typeof group.checkout.createAddressElement === "function"
-        : true;
+    const checkoutAddressFactory = isCheckoutGroup(group)
+        ? getCheckoutAddressFactory(group.checkout, config.addressOptions)
+        : null;
 
-    if (!canCreateAddressElement) {
-        console.warn("Stripe Checkout Sessions mode does not expose createAddressElement in this Stripe.js version.");
+    if (isCheckoutGroup(group) && !checkoutAddressFactory) {
+        console.warn("Stripe Checkout Sessions mode does not expose the requested Address Element in this Stripe.js version.");
         return;
     }
 
@@ -325,11 +325,36 @@ function mountAddressElement(group, config, dotNetCallback) {
         targetId: config.addressElementId,
         componentName: "address",
         factory: () => isCheckoutGroup(group)
-            ? group.checkout.createAddressElement(config.addressOptions)
+            ? checkoutAddressFactory(buildCheckoutAddressOptions(config.addressOptions))
             : group.elements.create("address", config.addressOptions),
         readyCallback: () => dotNetCallback.invokeMethodAsync("OnAddressElementReadyJs"),
         missingMessage: "Stripe address"
     }, group);
+}
+
+function getCheckoutAddressFactory(checkout, addressOptions) {
+    if (addressOptions?.mode === "shipping") {
+        return typeof checkout.createShippingAddressElement === "function"
+            ? checkout.createShippingAddressElement.bind(checkout)
+            : null;
+    }
+
+    return typeof checkout.createBillingAddressElement === "function"
+        ? checkout.createBillingAddressElement.bind(checkout)
+        : null;
+}
+
+function buildCheckoutAddressOptions(addressOptions) {
+    if (!addressOptions) {
+        return undefined;
+    }
+
+    const {
+        mode,
+        ...checkoutAddressOptions
+    } = addressOptions;
+
+    return removeUndefinedProperties(checkoutAddressOptions);
 }
 
 function mountElement(options, group) {

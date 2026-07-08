@@ -9,7 +9,7 @@ namespace Soenneker.Blazor.Stripe.Elements.Configuration.Address;
 public class StripeAddressOptions
 {
     /// <summary>
-    /// Specifies whether the Address Element is used for 'shipping' or 'billing'.
+    /// Specifies whether the Address Element is used for 'shipping' or 'billing'. In Checkout Sessions mode this selects the Checkout billing or shipping address element factory.
     /// </summary>
     [JsonPropertyName("mode")]
     public Enums.StripeAddressMode Mode { get; set; } = Enums.StripeAddressMode.Billing;
