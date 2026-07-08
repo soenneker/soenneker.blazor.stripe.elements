@@ -21,7 +21,7 @@ public class StripeAddressOptions
     public AutocompleteConfiguration? Autocomplete { get; set; }
 
     /// <summary>
-    /// Specifies which two-letter country codes are shown in the dropdown.
+    /// Specifies which two-letter country codes are shown in the dropdown. Not accepted by Checkout's billing or shipping address element factories.
     /// </summary>
     [JsonPropertyName("allowedCountries")]
     public List<string>? AllowedCountries { get; set; }
@@ -39,13 +39,13 @@ public class StripeAddressOptions
     public List<StripeAddressContact>? Contacts { get; set; }
 
     /// <summary>
-    /// Default values to populate the address form with.
+    /// Default values to populate the address form with. In Checkout Sessions mode these are mapped to a single saved contact.
     /// </summary>
     [JsonPropertyName("defaultValues")]
     public StripeAddressDefaultValues? DefaultValues { get; set; }
 
     /// <summary>
-    /// Customization options for field visibility and behavior.
+    /// Customization options for field visibility and behavior. Not accepted by Checkout's billing or shipping address element factories.
     /// </summary>
     [JsonPropertyName("fields")]
     public StripeAddressFields? Fields { get; set; }

@@ -27,7 +27,7 @@ public sealed class StripeCheckoutSessionOptions
     public StripeCheckoutDefaultValues? DefaultValues { get; set; }
 
     /// <summary>
-    /// Enables Stripe adaptive pricing for supported Checkout Sessions.
+    /// Enables Stripe adaptive pricing for supported Checkout Sessions. Serialized to Stripe as <c>{ allowed: value }</c>.
     /// </summary>
     [JsonPropertyName("adaptivePricing")]
     public bool? AdaptivePricing { get; set; }

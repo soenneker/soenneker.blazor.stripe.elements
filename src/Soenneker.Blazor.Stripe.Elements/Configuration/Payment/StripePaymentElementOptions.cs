@@ -21,7 +21,7 @@ public sealed class StripePaymentElementOptions
     public StripePaymentElementDefaultValues? DefaultValues { get; set; }
 
     /// <summary>
-    /// Business information such as name used for mandate text.
+    /// Business information such as name used for mandate text. Not accepted by Checkout's <c>checkout.createPaymentElement(options)</c>.
     /// </summary>
     [JsonPropertyName("business")]
     public StripeBusinessInfo? Business { get; set; }
@@ -63,7 +63,7 @@ public sealed class StripePaymentElementOptions
     public StripeApplePayOptions? ApplePay { get; set; }
 
     /// <summary>
-    /// CSS-like styling rules for the Address Element (base, invalid, etc).
+    /// CSS-like styling rules for the Address Element (base, invalid, etc). Not accepted by Checkout's <c>checkout.createPaymentElement(options)</c>.
     /// </summary>
     [JsonPropertyName("style")]
     public StripeElementStyle? Style { get; set; }

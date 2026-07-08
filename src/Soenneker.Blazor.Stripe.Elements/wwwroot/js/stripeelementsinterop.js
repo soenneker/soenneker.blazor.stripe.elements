@@ -279,7 +279,7 @@ function mountContactDetailsElement(group, config, dotNetCallback) {
     mountElement({
         targetId,
         componentName: "contactDetails",
-        factory: () => group.checkout.createContactDetailsElement(config.contactDetailsOptions ?? undefined),
+        factory: () => group.checkout.createContactDetailsElement(),
         readyCallback: () => {
             if (useContactDetailsTarget) {
                 return dotNetCallback.invokeMethodAsync("OnContactDetailsElementReadyJs");
@@ -300,11 +300,27 @@ function mountPaymentElement(group, config, dotNetCallback) {
         targetId: config.paymentElementId,
         componentName: "payment",
         factory: () => isCheckoutGroup(group)
-            ? group.checkout.createPaymentElement(config.paymentOptions)
+            ? group.checkout.createPaymentElement(buildCheckoutPaymentOptions(config.paymentOptions))
             : group.elements.create("payment", config.paymentOptions),
         readyCallback: () => dotNetCallback.invokeMethodAsync("OnPaymentElementReadyJs"),
         missingMessage: "Stripe payment"
     }, group);
+}
+
+function buildCheckoutPaymentOptions(paymentOptions) {
+    if (!paymentOptions) {
+        return undefined;
+    }
+
+    return removeUndefinedProperties({
+        fields: paymentOptions.fields,
+        layout: paymentOptions.layout,
+        paymentMethodOrder: paymentOptions.paymentMethodOrder,
+        readOnly: paymentOptions.readOnly,
+        terms: paymentOptions.terms,
+        applePay: paymentOptions.applePay,
+        wallets: paymentOptions.wallets
+    });
 }
 
 function mountAddressElement(group, config, dotNetCallback) {
@@ -349,12 +365,26 @@ function buildCheckoutAddressOptions(addressOptions) {
         return undefined;
     }
 
-    const {
-        mode,
-        ...checkoutAddressOptions
-    } = addressOptions;
+    return removeUndefinedProperties({
+        contacts: addressOptions.contacts ?? buildCheckoutAddressContacts(addressOptions.defaultValues),
+        display: addressOptions.display,
+        autocomplete: addressOptions.autocomplete
+    });
+}
 
-    return removeUndefinedProperties(checkoutAddressOptions);
+function buildCheckoutAddressContacts(defaultValues) {
+    if (!defaultValues) {
+        return undefined;
+    }
+
+    const name = defaultValues.name ?? [defaultValues.firstName, defaultValues.lastName].filter(Boolean).join(" ");
+    const contact = removeUndefinedProperties({
+        name: name || undefined,
+        phone: defaultValues.phone,
+        address: defaultValues.address
+    });
+
+    return Object.keys(contact).length ? [contact] : undefined;
 }
 
 function mountElement(options, group) {
@@ -399,8 +429,17 @@ function buildCheckoutOptions(config) {
     }
 
     checkoutOptions.elementsOptions = buildCheckoutElementsOptions(checkoutOptions.elementsOptions ?? config.elementsOptions);
+    checkoutOptions.adaptivePricing = buildCheckoutAdaptivePricingOptions(checkoutOptions.adaptivePricing);
 
     return checkoutOptions;
+}
+
+function buildCheckoutAdaptivePricingOptions(adaptivePricing) {
+    if (adaptivePricing === undefined || adaptivePricing === null || typeof adaptivePricing === "object") {
+        return adaptivePricing;
+    }
+
+    return {allowed: !!adaptivePricing};
 }
 
 function buildCheckoutElementsOptions(elementsOptions) {
