@@ -151,7 +151,7 @@
             throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
 
         if (Configuration?.CheckoutSessionOptions != null)
-            return await ConfirmCheckout(returnUrl, cancellationToken: cancellationToken);
+            return await ConfirmCheckout(cancellationToken: cancellationToken);
 
         paymentIntentClientSecret ??= Configuration?.ElementsOptions?.ClientSecret;
 
@@ -174,7 +174,7 @@
             throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
 
         if (Configuration?.CheckoutSessionOptions != null)
-            return await ConfirmCheckout(returnUrl, cancellationToken: cancellationToken);
+            return await ConfirmCheckout(cancellationToken: cancellationToken);
 
         setupIntentClientSecret ??= Configuration?.ElementsOptions?.ClientSecret;
 

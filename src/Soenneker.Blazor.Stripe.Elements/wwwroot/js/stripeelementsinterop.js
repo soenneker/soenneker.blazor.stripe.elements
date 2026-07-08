@@ -196,7 +196,7 @@ export async function confirmCheckout(groupId, returnUrl, optionsJson) {
         group.session = actions.getSession();
     }
 
-    return await actions.confirm(options);
+    return Object.keys(options).length ? await actions.confirm(options) : await actions.confirm();
 }
 
 export function unmountGroup(groupId) {
