@@ -6,6 +6,7 @@ using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
 using Soenneker.Blazor.Stripe.Elements.Configuration.ContactDetails;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Elements;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Initialization;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Card;
 
 namespace Soenneker.Blazor.Stripe.Elements.Configuration;
 
@@ -74,6 +75,18 @@ public sealed class StripeElementsConfiguration
     /// </summary>
     [JsonPropertyName("paymentOptions")]
     public StripePaymentElementOptions? PaymentOptions { get; set; }
+
+    /// <summary>
+    /// The DOM element ID where the single-line Card Element should be mounted.
+    /// </summary>
+    [JsonPropertyName("cardElementId")]
+    public string? CardElementId { get; set; }
+
+    /// <summary>
+    /// Configuration options for the single-line Card Element, including Link autofill control.
+    /// </summary>
+    [JsonPropertyName("cardOptions")]
+    public StripeCardElementOptions? CardOptions { get; set; }
 
     /// <summary>
     /// The DOM element ID where the Address Element should be mounted.

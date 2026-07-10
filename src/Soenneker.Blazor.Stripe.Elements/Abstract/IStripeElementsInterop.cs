@@ -2,6 +2,7 @@ using Microsoft.JSInterop;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
 using Soenneker.Blazor.Stripe.Elements.Dtos;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Card;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,6 +76,18 @@ public interface IStripeElementsInterop : IAsyncDisposable
     /// <param name="cancellationToken">A token that can be used to cancel the confirmation operation.</param>
     /// <returns>A task representing the asynchronous operation, returning the full Stripe confirmation result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmSetup(string elementId, string setupIntentClientSecret, string returnUrl, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirms a PaymentIntent using the mounted single-line Card Element.
+    /// </summary>
+    ValueTask<StripeConfirmResult?> ConfirmCardPayment(string elementId, string paymentIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirms a SetupIntent using the mounted single-line Card Element.
+    /// </summary>
+    ValueTask<StripeConfirmResult?> ConfirmCardSetup(string elementId, string setupIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a Checkout Session using the Checkout Sessions Elements SDK.

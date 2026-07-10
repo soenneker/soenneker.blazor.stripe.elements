@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Lepton.Suite.Abstract;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Card;
 
 namespace Soenneker.Blazor.Stripe.Elements.Abstract;
 
@@ -36,6 +37,16 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// This corresponds to the Stripe 'ready' event for the Payment Element.
     /// </summary>
     EventCallback OnPaymentElementReady { get; set; }
+
+    /// <summary>
+    /// Invoked when the single-line Card Element has finished rendering and is interactive.
+    /// </summary>
+    EventCallback OnCardElementReady { get; set; }
+
+    /// <summary>
+    /// Invoked whenever the Card Element's validation state changes.
+    /// </summary>
+    EventCallback<StripeCardElementChangeResult> OnCardElementChange { get; set; }
 
     /// <summary>
     /// Invoked specifically when the Address Element iframe has finished rendering and is interactive.
@@ -113,6 +124,18 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// <param name="setupIntentClientSecret">Optional: The client secret for the SetupIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     ValueTask<StripeConfirmResult?> ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirms a PaymentIntent using the mounted single-line Card Element.
+    /// </summary>
+    ValueTask<StripeConfirmResult?> ConfirmCardPayment(string paymentIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirms a SetupIntent using the mounted single-line Card Element.
+    /// </summary>
+    ValueTask<StripeConfirmResult?> ConfirmCardSetup(string setupIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a Checkout Session using the Checkout Sessions Elements SDK.

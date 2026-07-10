@@ -67,6 +67,7 @@ export async function create(groupId, configJson, dotNetCallback) {
         mountLinkAuthenticationElement(group, config, dotNetCallback);
         mountContactDetailsElement(group, config, dotNetCallback);
         mountPaymentElement(group, config, dotNetCallback);
+        mountCardElement(group, config, dotNetCallback);
         mountAddressElement(group, config, dotNetCallback);
 
         stripeElementsGroups.push(group);
@@ -166,6 +167,24 @@ export async function confirmSetup(groupId, clientSecret, returnUrl) {
             return_url: returnUrl
         },
         redirect: "if_required"
+    });
+}
+
+export async function confirmCardPayment(groupId, clientSecret, billingDetailsJson) {
+    const group = requireCardGroup(groupId, "confirmCardPayment");
+    if (!group) return {error: {message: "Mounted Card Element not found"}};
+
+    return await group.stripe.confirmCardPayment(clientSecret, {
+        payment_method: buildCardPaymentMethod(group, billingDetailsJson)
+    });
+}
+
+export async function confirmCardSetup(groupId, clientSecret, billingDetailsJson) {
+    const group = requireCardGroup(groupId, "confirmCardSetup");
+    if (!group) return {error: {message: "Mounted Card Element not found"}};
+
+    return await group.stripe.confirmCardSetup(clientSecret, {
+        payment_method: buildCardPaymentMethod(group, billingDetailsJson)
     });
 }
 
@@ -307,6 +326,26 @@ function mountPaymentElement(group, config, dotNetCallback) {
     }, group);
 }
 
+function mountCardElement(group, config, dotNetCallback) {
+    if (!config.cardElementId || !config.cardOptions) {
+        return;
+    }
+
+    if (isCheckoutGroup(group)) {
+        console.warn("The Card Element is not supported by the Checkout Sessions Elements SDK.");
+        return;
+    }
+
+    mountElement({
+        targetId: config.cardElementId,
+        componentName: "card",
+        factory: () => group.elements.create("card", config.cardOptions),
+        readyCallback: () => dotNetCallback.invokeMethodAsync("OnCardElementReadyJs"),
+        changeCallback: event => dotNetCallback.invokeMethodAsync("OnCardElementChangeJs", sanitizeCardChangeEvent(event)),
+        missingMessage: "Stripe card"
+    }, group);
+}
+
 function buildCheckoutPaymentOptions(paymentOptions) {
     if (!paymentOptions) {
         return undefined;
@@ -397,8 +436,46 @@ function mountElement(options, group) {
     const element = options.factory();
 
     element.on("ready", options.readyCallback);
+    if (options.changeCallback) {
+        element.on("change", options.changeCallback);
+    }
     element.mount(target);
     group.components[options.componentName] = element;
+}
+
+function sanitizeCardChangeEvent(event) {
+    return {
+        complete: !!event.complete,
+        empty: !!event.empty,
+        brand: event.brand,
+        error: event.error
+    };
+}
+
+function requireCardGroup(groupId, operation) {
+    const group = findStripeGroup(groupId);
+    if (!group) {
+        console.error(`StripeElements group "${groupId}" not found for ${operation}.`);
+        return null;
+    }
+
+    if (!group.components.card) {
+        console.error(`StripeElements group "${groupId}" does not contain a mounted Card Element.`);
+        return null;
+    }
+
+    return group;
+}
+
+function buildCardPaymentMethod(group, billingDetailsJson) {
+    const paymentMethod = {card: group.components.card};
+    const billingDetails = parseOptions(billingDetailsJson);
+
+    if (Object.keys(billingDetails).length) {
+        paymentMethod.billing_details = billingDetails;
+    }
+
+    return paymentMethod;
 }
 
 async function getCheckoutActions(group) {

@@ -8,6 +8,7 @@
 @using Soenneker.Extensions.String
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Card
 
 @inject IStripeElementsInterop StripeElementsInterop
 
@@ -30,6 +31,12 @@
 
     [Parameter]
     public EventCallback OnPaymentElementReady { get; set; }
+
+    [Parameter]
+    public EventCallback OnCardElementReady { get; set; }
+
+    [Parameter]
+    public EventCallback<StripeCardElementChangeResult> OnCardElementChange { get; set; }
 
     [Parameter]
     public EventCallback OnAddressElementReady { get; set; }
@@ -72,7 +79,8 @@
         {typeof(StripeAddressElement), BlazorIdGenerator.New("stripe-address")},
         {typeof(StripeContactDetailsElement), BlazorIdGenerator.New("stripe-contact-details")},
         {typeof(StripeLinkAuthenticationElement), BlazorIdGenerator.New("stripe-link-auth")},
-        {typeof(StripePaymentElement), BlazorIdGenerator.New("stripe-payment")}
+        {typeof(StripePaymentElement), BlazorIdGenerator.New("stripe-payment")},
+        {typeof(StripeCardElement), BlazorIdGenerator.New("stripe-card")}
     };
 
     private bool _initialized;
@@ -133,6 +141,7 @@
         Configuration.ContactDetailsElementId ??= ElementIds[typeof(StripeContactDetailsElement)];
         Configuration.LinkAuthenticationElementId ??= ElementIds[typeof(StripeLinkAuthenticationElement)];
         Configuration.PaymentElementId ??= ElementIds[typeof(StripePaymentElement)];
+        Configuration.CardElementId ??= ElementIds[typeof(StripeCardElement)];
 
         _dotNetReference = DotNetObjectReference.Create(this);
 
@@ -206,6 +215,38 @@
         }
     }
 
+    public async ValueTask<StripeConfirmResult?> ConfirmCardPayment(string paymentIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
+
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+        {
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmCardPayment(Id!, paymentIntentClientSecret, billingDetails, linked);
+            await OnAfterConfirmPayment.InvokeIfHasDelegate(result);
+            return result;
+        }
+    }
+
+    public async ValueTask<StripeConfirmResult?> ConfirmCardSetup(string setupIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("Stripe Elements has not been initialized yet.");
+
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+        {
+            StripeConfirmResult? result = await StripeElementsInterop.ConfirmCardSetup(Id!, setupIntentClientSecret, billingDetails, linked);
+            await OnAfterConfirmSetup.InvokeIfHasDelegate(result);
+            return result;
+        }
+    }
+
     public async ValueTask<StripeConfirmResult?> ConfirmCheckout(string? returnUrl = null, StripeCheckoutConfirmOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (!_initialized)
@@ -268,6 +309,18 @@
     public Task OnLinkAuthenticationElementReadyJs()
     {
         return OnLinkAuthenticationElementReady.InvokeIfHasDelegate();
+    }
+
+    [JSInvokable("OnCardElementReadyJs")]
+    public Task OnCardElementReadyJs()
+    {
+        return OnCardElementReady.InvokeIfHasDelegate();
+    }
+
+    [JSInvokable("OnCardElementChangeJs")]
+    public Task OnCardElementChangeJs(StripeCardElementChangeResult result)
+    {
+        return OnCardElementChange.InvokeIfHasDelegate(result);
     }
 
     [JSInvokable("OnContactDetailsElementReadyJs")]

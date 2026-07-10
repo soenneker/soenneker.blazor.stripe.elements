@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
 using Soenneker.Blazor.Stripe.Elements.Dtos;
+using Soenneker.Blazor.Stripe.Elements.Configuration.Card;
 
 namespace Soenneker.Blazor.Stripe.Elements;
 
@@ -123,6 +124,32 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
             return await module.InvokeAsync<StripeConfirmResult?>("confirmSetup", linked, elementId, setupIntentClientSecret, returnUrl);
+        }
+    }
+
+    public async ValueTask<StripeConfirmResult?> ConfirmCardPayment(string elementId, string paymentIntentClientSecret,
+        StripeCardBillingDetails? billingDetails = null, CancellationToken cancellationToken = default)
+    {
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails);
+            return await module.InvokeAsync<StripeConfirmResult?>("confirmCardPayment", linked, elementId, paymentIntentClientSecret, json);
+        }
+    }
+
+    public async ValueTask<StripeConfirmResult?> ConfirmCardSetup(string elementId, string setupIntentClientSecret,
+        StripeCardBillingDetails? billingDetails = null, CancellationToken cancellationToken = default)
+    {
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails);
+            return await module.InvokeAsync<StripeConfirmResult?>("confirmCardSetup", linked, elementId, setupIntentClientSecret, json);
         }
     }
 
