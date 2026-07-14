@@ -22,6 +22,12 @@ public sealed class StripeAppearance
     public StripeLabelsMode? Labels { get; set; }
 
     /// <summary>
+    /// Controls how related input fields are arranged. Supported values are <c>spaced</c> and <c>condensed</c>.
+    /// </summary>
+    [JsonPropertyName("inputs")]
+    public StripeInputsMode? Inputs { get; set; }
+
+    /// <summary>
     /// CSS variables used to customize the appearance.
     /// </summary>
     [JsonPropertyName("variables")]
