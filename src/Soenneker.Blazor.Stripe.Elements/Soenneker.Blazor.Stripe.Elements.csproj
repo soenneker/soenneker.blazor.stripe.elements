@@ -49,7 +49,7 @@
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.4016" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1689" />
         <PackageReference Include="Soenneker.Dtos.Stripe.Error" Version="4.0.190" />
-        <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="4.0.72" />
+        <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="4.0.75" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.36" />
     </ItemGroup>
 </Project>
