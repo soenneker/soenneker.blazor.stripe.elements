@@ -50,6 +50,6 @@
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1707" />
         <PackageReference Include="Soenneker.Dtos.Stripe.Error" Version="4.0.201" />
         <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="4.0.78" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.46" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.47" />
     </ItemGroup>
 </Project>
