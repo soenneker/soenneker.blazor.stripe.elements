@@ -80,12 +80,22 @@ public interface IStripeElementsInterop : IAsyncDisposable
     /// <summary>
     /// Confirms a PaymentIntent using the mounted single-line Card Element.
     /// </summary>
+    /// <param name="elementId">ID of the DOM element to target.</param>
+    /// <param name="paymentIntentClientSecret">payment Intent Client Secret used to communicate with the external service.</param>
+    /// <param name="billingDetails">Billing details submitted with the payment confirmation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested stripe Confirm Result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmCardPayment(string elementId, string paymentIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a SetupIntent using the mounted single-line Card Element.
     /// </summary>
+    /// <param name="elementId">ID of the DOM element to target.</param>
+    /// <param name="setupIntentClientSecret">setup Intent Client Secret used to communicate with the external service.</param>
+    /// <param name="billingDetails">Billing details submitted with the payment confirmation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested stripe Confirm Result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmCardSetup(string elementId, string setupIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
         CancellationToken cancellationToken = default);
 
@@ -101,11 +111,11 @@ public interface IStripeElementsInterop : IAsyncDisposable
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the update operation.
+    /// Updates stripe elements for the stripe elements.
     /// </summary>
-    /// <param name="elementId">The element id.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="elementId">ID of the DOM element to target.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the update operation is complete.</returns>
     ValueTask Update(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>

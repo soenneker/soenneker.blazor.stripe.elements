@@ -88,15 +88,16 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// <summary>
     /// Initializes the Stripe Elements component with the specified configuration.
     /// </summary>
-    /// <param name="configuration">The Stripe Elements configuration to apply.</param>
+    /// <param name="configuration">configuration that supplies runtime settings.</param>
     /// <param name="cancellationToken">A token to cancel the initialization operation.</param>
+    /// <returns>A task that completes when the stripe elements is ready for use.</returns>
     ValueTask Initialize(StripeElementsConfiguration? configuration = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the load stripe operation.
+    /// Loads stripe for the stripe elements.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the stripe has been loaded.</returns>
     ValueTask LoadStripe(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -106,6 +107,7 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// <param name="returnUrl">The return URL to redirect to after confirmation.</param>
     /// <param name="paymentIntentClientSecret">Optional: The client secret for the PaymentIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task whose result is the requested stripe Confirm Result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmPayment(string returnUrl, string? paymentIntentClientSecret = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -123,17 +125,26 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// <param name="returnUrl">The return URL to redirect to after confirmation.</param>
     /// <param name="setupIntentClientSecret">Optional: The client secret for the SetupIntent.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task whose result is the requested stripe Confirm Result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmSetup(string returnUrl, string? setupIntentClientSecret = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a PaymentIntent using the mounted single-line Card Element.
     /// </summary>
+    /// <param name="paymentIntentClientSecret">payment Intent Client Secret used to communicate with the external service.</param>
+    /// <param name="billingDetails">Billing details submitted with the payment confirmation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested stripe Confirm Result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmCardPayment(string paymentIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Confirms a SetupIntent using the mounted single-line Card Element.
     /// </summary>
+    /// <param name="setupIntentClientSecret">setup Intent Client Secret used to communicate with the external service.</param>
+    /// <param name="billingDetails">Billing details submitted with the payment confirmation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested stripe Confirm Result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmCardSetup(string setupIntentClientSecret, StripeCardBillingDetails? billingDetails = null,
         CancellationToken cancellationToken = default);
 
@@ -143,17 +154,21 @@ public interface IStripeElements : ILeptonCancellableIdentifiableContentElement
     /// <param name="returnUrl">Optional return URL to redirect to after confirmation.</param>
     /// <param name="options">Optional confirmation details to pass to Checkout.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task whose result is the requested stripe Confirm Result.</returns>
     ValueTask<StripeConfirmResult?> ConfirmCheckout(string? returnUrl = null, StripeCheckoutConfirmOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Calls update() on all mounted Stripe elements in the group, typically used after DOM becomes visible (e.g. in tabs or modals).
     /// </summary>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the update operation is complete.</returns>
     ValueTask Update(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Unmounts the current Stripe Elements instance and cleans up resources.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the unmount operation.</param>
+    /// <returns>A task that completes when the unmount operation is complete.</returns>
     ValueTask Unmount(CancellationToken cancellationToken = default);
 
     /// <summary>
