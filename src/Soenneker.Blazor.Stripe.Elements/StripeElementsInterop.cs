@@ -194,8 +194,9 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
-        await _moduleImportUtil.DisposeContentModule(_wrapperModulePath);
-        await _scriptInitializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
+        await _scriptInitializer.DisposeAsync();
+        await _stripeJsInitializer.DisposeAsync();
+        await _moduleImportUtil.DisposeContentModule(_wrapperModulePath);
     }
 }

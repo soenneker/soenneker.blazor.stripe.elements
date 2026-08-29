@@ -79,7 +79,8 @@ export async function create(groupId, configJson, dotNetCallback) {
         }
     } catch (e) {
         console.error("Error during element creation, rolling back group:", e);
-        unmountGroup(groupId);
+        cleanupGroup(group);
+        disconnectStripeObserver(groupId);
         throw e;
     }
 }
@@ -220,18 +221,12 @@ export async function confirmCheckout(groupId, returnUrl, optionsJson) {
 
 export function unmountGroup(groupId) {
     const group = findStripeGroup(groupId);
-    if (!group) return;
+    if (!group) {
+        disconnectStripeObserver(groupId);
+        return;
+    }
 
-    Object.values(group.components).forEach(component => {
-        try {
-            component.unmount();
-            if (typeof component.destroy === "function") {
-                component.destroy();
-            }
-        } catch (e) {
-            console.warn(`Failed to unmount or destroy component: ${e}`);
-        }
-    });
+    cleanupGroup(group);
 
     const groupIndex = stripeElementsGroups.findIndex(g => g.id === groupId);
     if (groupIndex > -1) {
@@ -242,24 +237,23 @@ export function unmountGroup(groupId) {
 }
 
 export function createObserver(groupId) {
+    disconnectStripeObserver(groupId);
+
     const target = document.getElementById(groupId);
     if (!target) {
         console.warn(`Target element "${groupId}" not found for observer.`);
         return;
     }
 
-    const observer = new MutationObserver((mutations) => {
-        const targetRemoved = mutations.some(mutation =>
-            Array.from(mutation.removedNodes).includes(target)
-        );
-
-        if (targetRemoved) {
+    const observer = new MutationObserver(() => {
+        if (!target.isConnected) {
             unmountGroup(groupId);
         }
     });
 
-    if (target?.parentNode) {
-        observer.observe(target.parentNode, {childList: true});
+    const observationRoot = document.body ?? document.documentElement;
+    if (observationRoot) {
+        observer.observe(observationRoot, {childList: true, subtree: true});
         stripeObservers.set(groupId, observer);
     }
 }
@@ -273,7 +267,7 @@ function mountLinkAuthenticationElement(group, config, dotNetCallback) {
         targetId: config.linkAuthenticationElementId,
         componentName: "linkAuth",
         factory: () => group.elements.create("linkAuthentication", config.linkAuthenticationOptions),
-        readyCallback: () => dotNetCallback.invokeMethodAsync("OnLinkAuthenticationElementReadyJs"),
+        readyCallback: () => invokeDotNet(dotNetCallback, "OnLinkAuthenticationElementReadyJs"),
         missingMessage: "Stripe linkAuthentication"
     }, group);
 }
@@ -301,10 +295,10 @@ function mountContactDetailsElement(group, config, dotNetCallback) {
         factory: () => group.checkout.createContactDetailsElement(),
         readyCallback: () => {
             if (useContactDetailsTarget) {
-                return dotNetCallback.invokeMethodAsync("OnContactDetailsElementReadyJs");
+                return invokeDotNet(dotNetCallback, "OnContactDetailsElementReadyJs");
             }
 
-            return dotNetCallback.invokeMethodAsync("OnLinkAuthenticationElementReadyJs");
+            return invokeDotNet(dotNetCallback, "OnLinkAuthenticationElementReadyJs");
         },
         missingMessage: "Stripe contactDetails"
     }, group);
@@ -321,7 +315,7 @@ function mountPaymentElement(group, config, dotNetCallback) {
         factory: () => isCheckoutGroup(group)
             ? group.checkout.createPaymentElement(buildCheckoutPaymentOptions(config.paymentOptions))
             : group.elements.create("payment", config.paymentOptions),
-        readyCallback: () => dotNetCallback.invokeMethodAsync("OnPaymentElementReadyJs"),
+        readyCallback: () => invokeDotNet(dotNetCallback, "OnPaymentElementReadyJs"),
         missingMessage: "Stripe payment"
     }, group);
 }
@@ -340,8 +334,8 @@ function mountCardElement(group, config, dotNetCallback) {
         targetId: config.cardElementId,
         componentName: "card",
         factory: () => group.elements.create("card", config.cardOptions),
-        readyCallback: () => dotNetCallback.invokeMethodAsync("OnCardElementReadyJs"),
-        changeCallback: event => dotNetCallback.invokeMethodAsync("OnCardElementChangeJs", sanitizeCardChangeEvent(event)),
+        readyCallback: () => invokeDotNet(dotNetCallback, "OnCardElementReadyJs"),
+        changeCallback: event => invokeDotNet(dotNetCallback, "OnCardElementChangeJs", sanitizeCardChangeEvent(event)),
         missingMessage: "Stripe card"
     }, group);
 }
@@ -382,7 +376,7 @@ function mountAddressElement(group, config, dotNetCallback) {
         factory: () => isCheckoutGroup(group)
             ? checkoutAddressFactory(buildCheckoutAddressOptions(config.addressOptions))
             : group.elements.create("address", config.addressOptions),
-        readyCallback: () => dotNetCallback.invokeMethodAsync("OnAddressElementReadyJs"),
+        readyCallback: () => invokeDotNet(dotNetCallback, "OnAddressElementReadyJs"),
         missingMessage: "Stripe address"
     }, group);
 }
@@ -541,6 +535,27 @@ function parseOptions(optionsJson) {
 
 function removeUndefinedProperties(value) {
     return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null));
+}
+
+function cleanupGroup(group) {
+    Object.values(group.components).forEach(component => {
+        try {
+            component.unmount();
+            if (typeof component.destroy === "function") {
+                component.destroy();
+            }
+        } catch (e) {
+            console.warn(`Failed to unmount or destroy component: ${e}`);
+        }
+    });
+
+    group.components = {};
+}
+
+function invokeDotNet(dotNetCallback, methodName, ...args) {
+    void dotNetCallback.invokeMethodAsync(methodName, ...args).catch(error => {
+        console.debug(`Unable to invoke .NET callback '${methodName}'.`, error);
+    });
 }
 
 function disconnectStripeObserver(groupId) {

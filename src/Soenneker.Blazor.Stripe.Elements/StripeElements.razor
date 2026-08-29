@@ -128,29 +128,56 @@
         if (!_interopInitialized)
             throw new InvalidOperationException("Stripe Elements interop is not yet available. Wait until the component has rendered.");
 
-        _createCalled = true;
-        _initialized = true;
+        StripeElementsConfiguration? effectiveConfiguration = configuration ?? Configuration;
 
-        if (configuration != null)
-            Configuration = configuration;
-
-        if (Configuration == null)
+        if (effectiveConfiguration == null)
             throw new InvalidOperationException("StripeElements Configuration must be set");
 
+        if (string.IsNullOrWhiteSpace(effectiveConfiguration.PublishableKey))
+            throw new InvalidOperationException("A Stripe publishable key is required.");
+
+        if (effectiveConfiguration.PublishableKey.StartsWith("sk_", StringComparison.OrdinalIgnoreCase) ||
+            effectiveConfiguration.PublishableKey.StartsWith("rk_", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("A Stripe secret or restricted key must never be sent to the browser. Use a publishable key.");
+
+        Configuration = effectiveConfiguration;
         Configuration.AddressElementId ??= ElementIds[typeof(StripeAddressElement)];
         Configuration.ContactDetailsElementId ??= ElementIds[typeof(StripeContactDetailsElement)];
         Configuration.LinkAuthenticationElementId ??= ElementIds[typeof(StripeLinkAuthenticationElement)];
         Configuration.PaymentElementId ??= ElementIds[typeof(StripePaymentElement)];
         Configuration.CardElementId ??= ElementIds[typeof(StripeCardElement)];
 
+        _createCalled = true;
+        _initialized = true;
+
         _dotNetReference = DotNetObjectReference.Create(this);
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        using (cts)
+        try
         {
-            await StripeElementsInterop.Create(Id!, _dotNetReference, Configuration, linked);
-            await StripeElementsInterop.CreateObserver(Id!, linked);
+            using (cts)
+            {
+                await StripeElementsInterop.Create(Id!, _dotNetReference, Configuration, linked);
+                await StripeElementsInterop.CreateObserver(Id!, linked);
+            }
+        }
+        catch
+        {
+            try
+            {
+                await StripeElementsInterop.Unmount(Id!);
+            }
+            catch
+            {
+                // Preserve the initialization exception; browser cleanup is best effort on this path.
+            }
+
+            _dotNetReference.Dispose();
+            _dotNetReference = null;
+            _createCalled = false;
+            _initialized = false;
+            throw;
         }
     }
 
@@ -285,6 +312,11 @@
 
         using (cts)
             await StripeElementsInterop.Unmount(Id!, linked);
+
+        _dotNetReference?.Dispose();
+        _dotNetReference = null;
+        _initialized = false;
+        _createCalled = false;
     }
 
     [JSInvokable("OnInitializedJs")]
@@ -331,9 +363,23 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
+        if (_initialized && Id is not null)
+        {
+            try
+            {
+                await StripeElementsInterop.Unmount(Id);
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
 
         _dotNetReference?.Dispose();
+        _dotNetReference = null;
+        _initialized = false;
+        _createCalled = false;
+
+        await base.DisposeAsync();
     }
 
 }

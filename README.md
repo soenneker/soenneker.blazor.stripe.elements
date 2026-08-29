@@ -5,100 +5,159 @@
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Blazor.Stripe.Elements
 
-**A modular, strongly-typed Blazor library for Stripe Elements** � designed to provide first-class C# configuration and deep interop with Stripe.js. Built for modern Blazor projects using Stripe's Payment, Link Authentication, and Address Elements.
+Strongly typed Blazor components and interop for Stripe Payment, Card, Address, Link Authentication, and Checkout Sessions Elements.
 
-## ? Features
+<img src="https://github.com/user-attachments/assets/a2f8777a-02e0-40de-afd6-fe4d1211427b" width="80%" alt="Stripe Elements example" />
 
-* ?? **Blazor-native components** for `<StripeElements>`, `<StripePaymentElement>`, `<StripeLinkAuthenticationElement>`, and `<StripeAddressElement>`
-* ?? **Fully configurable via C#** � with strong typing for all supported options, including appearance, locale, currency, developer tools, and more
-* ?? **Appearance API support** with extensible theming and rule control
-* ?? **Supports SetupIntents**, on-submit hooks, and validation workflows
-* ?? Compatible with Stripe test environments and developer tooling
-* ?? Seamless async interop with Stripe.js lifecycle
-
-<img src="https://github.com/user-attachments/assets/a2f8777a-02e0-40de-afd6-fe4d1211427b" width="80%"></img>
-
-## ?? Installation
+## Installation
 
 ```bash
 dotnet add package Soenneker.Blazor.Stripe.Elements
 ```
 
----
-
-## ??? Usage
-
-### 1. Register Stripe in your Blazor project
+Register the interop service in `Program.cs`:
 
 ```csharp
+using Soenneker.Blazor.Stripe.Elements.Registrars;
+
 builder.Services.AddStripeElementsInteropAsScoped();
 ```
 
-### 2. Add the components to your Razor page
+Add the component namespace to `_Imports.razor`:
 
 ```razor
-<StripeElements @ref="_stripeElements" StripeElementsConfiguration="_config">
-
-    <StripeAddressElement />
-    <StripeLinkAuthenticationElement />
-    <StripePaymentElement />
-
-    <Button Clicked="Submit">Submit</Button>
-</StripeElements>
+@using Soenneker.Blazor.Stripe.Elements
 ```
 
-### 3. Configure Stripe using C\#
+## Payment Element example
 
-```csharp
-_config = new StripeElementsConfiguration
+Create the PaymentIntent on your server. Return its client secret only to the customer who is allowed to complete that payment, then configure and render Elements:
+
+```razor
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+@using Soenneker.Blazor.Stripe.Elements.Configuration
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Elements
+@using Soenneker.Blazor.Stripe.Elements.Configuration.Payment
+@using Soenneker.Blazor.Stripe.Elements.Dtos
+
+@if (_configuration is null)
 {
-    PublishableKey = "pk_test_...",
-    ElementsOptions = new StripeElementsOptions
+    <p>Preparing checkout…</p>
+}
+else
+{
+    <StripeElements @ref="_elements"
+                    Configuration="_configuration"
+                    OnPaymentElementReady="HandlePaymentElementReady">
+        <StripePaymentElement />
+    </StripeElements>
+
+    <button type="button" disabled="@(!_ready || _submitting)" @onclick="PayAsync">
+        Pay
+    </button>
+
+    @if (_error is not null)
     {
-        Locale = "auto",
-        Currency = CurrencyCode.Usd,
-        Mode = StripeElementsMode.Setup,
-        Appearance = new StripeAppearance
+        <p role="alert">@_error</p>
+    }
+}
+
+@code {
+    private StripeElements? _elements;
+    private StripeElementsConfiguration? _configuration;
+    private bool _ready;
+    private bool _submitting;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // This endpoint creates the PaymentIntent using server-controlled amount,
+        // currency, customer, and order data, then returns its client secret.
+        string clientSecret = await Http.GetStringAsync("api/payments/create-intent");
+
+        _configuration = new StripeElementsConfiguration
         {
-            Theme = StripeElementsTheme.Flat,
-            Variables = new StripeAppearanceVariablesExtended
+            PublishableKey = "pk_test_replace_me",
+            ElementsOptions = new StripeElementsOptions
             {
-                ColorPrimary = "#0570de",
-                BorderRadius = "4px"
-            }
-        }
-    },
-    AddressOptions = new StripeAddressOptions
+                ClientSecret = clientSecret,
+                Locale = "auto"
+            },
+            PaymentOptions = new StripePaymentElementOptions()
+        };
+    }
+
+    private void HandlePaymentElementReady() => _ready = true;
+
+    private async Task PayAsync()
     {
-        Mode = StripeAddressMode.Billing,
-        AllowedCountries = ["US", "CA"],
-        Fields = new StripeAddressFields
+        _submitting = true;
+        _error = null;
+
+        try
         {
-            Phone = StripeAddressFieldsPhoneOption.Auto
+            StripeSubmitResult? validation = await _elements!.Submit();
+            if (validation?.Error is not null)
+            {
+                _error = validation.Error.Message;
+                return;
+            }
+
+            string returnUrl = Navigation.ToAbsoluteUri("/payments/complete").ToString();
+            StripeConfirmResult? result = await _elements.ConfirmPayment(returnUrl);
+            _error = result?.Error?.Message;
+        }
+        finally
+        {
+            _submitting = false;
         }
     }
-};
+}
 ```
 
----
+`ConfirmPayment()` uses the client secret in `ElementsOptions` unless one is passed explicitly. It sets Stripe's redirect behavior to `if_required`, so redirect-based payment methods can still leave the page and later return to `returnUrl`.
 
-## ? Components
+## Configuration controls what mounts
 
-| Component                         | Purpose                                    |
-| --------------------------------- | ------------------------------------------ |
-| `StripeElements`                  | Wrapper and manager for all child elements |
-| `StripePaymentElement`            | Handles card and express payments          |
-| `StripeLinkAuthenticationElement` | Collects email and links with Stripe Link  |
-| `StripeAddressElement`            | Collects billing or shipping address       |
-| `StripeElementsConfiguration`     | Full C# model to control everything        |
+Child markup provides the target element; the matching options property enables creation:
 
----
+| Child component | Required configuration |
+| --- | --- |
+| `StripePaymentElement` | `PaymentOptions` |
+| `StripeCardElement` | `CardOptions` |
+| `StripeAddressElement` | `AddressOptions` |
+| `StripeLinkAuthenticationElement` | `LinkAuthenticationOptions` |
+| `StripeContactDetailsElement` | `CheckoutSessionOptions` and `ContactDetailsOptions` |
 
-## ?? Official Stripe Docs
+Keep all element components inside the same `StripeElements` parent. Rendering a child without its matching options leaves an empty target; supplying options without rendering the target prevents that element from mounting.
 
-* ?? [Stripe Elements Overview](https://docs.stripe.com/elements)
-* ?? [Elements JavaScript API Reference](https://docs.stripe.com/js/element)
-* ?? [Payment Element](https://docs.stripe.com/js/element/payment_element)
-* ?? [Address Element](https://docs.stripe.com/js/element/address_element)
-* ?? [Link Authentication Element](https://docs.stripe.com/js/element/link_authentication_element)
-* ?? [Appearance API (Theme & Styling)](https://docs.stripe.com/elements/appearance-api)
+The single-line Card Element uses `ConfirmCardPayment()` or `ConfirmCardSetup()`. The Payment Element uses `Submit()` followed by `ConfirmPayment()` or `ConfirmSetup()`. Checkout Sessions mode is selected by setting `CheckoutSessionOptions` and is confirmed with `ConfirmCheckout()`.
+
+## Lifecycle
+
+- Automatic initialization occurs after the first interactive render. Set `ManuallyInitialize="true"` and call `Initialize()` after `OnElementRendered` when configuration must be supplied later.
+- `OnInitialize` reports that the Stripe group was created. Element-specific ready callbacks report when their corresponding iframe is interactive.
+- Configuration is consumed when the group is created; mutating the object afterward does not rebuild mounted Elements.
+- `Update()` asks mounted elements to recalculate after a hidden container, tab, or modal becomes visible.
+- `Unmount()` destroys the mounted group. The component can then be initialized again with new configuration.
+
+## Payment and secret handling
+
+- A publishable key (`pk_…`) belongs in browser configuration. Secret and restricted API keys (`sk_…` and `rk_…`) must remain on the server and are rejected by the component.
+- PaymentIntent, SetupIntent, CustomerSession, and Checkout Session client secrets are browser-facing capabilities, but they are still sensitive. Serve them over TLS only to the intended customer; never log them, put them in URLs, or persist them in analytics.
+- Calculate amounts, currencies, discounts, customer ownership, and order contents on the server. Never accept those values from the browser without authoritative validation.
+- Treat the client confirmation result as user-interface feedback, not final fulfillment authority. Verify payment state on the server and process signed Stripe webhooks idempotently before delivering goods or services.
+- Use a fixed, application-owned HTTPS return URL. Do not pass an unvalidated user-supplied return URL into a confirmation method.
+- Stripe-hosted iframes keep raw payment details out of your Blazor component, but they do not remove your compliance obligations. Review Stripe's integration and PCI guidance for your deployment.
+
+The package loads Stripe.js directly from `https://js.stripe.com/dahlia/stripe.js`. Your Content Security Policy and network controls must permit the Stripe script, frames, and connections required by the payment methods you enable.
+
+## Stripe documentation
+
+- [Stripe Elements](https://docs.stripe.com/elements)
+- [Payment Element](https://docs.stripe.com/payments/payment-element)
+- [PaymentIntents and client-secret handling](https://docs.stripe.com/payments/payment-intents)
+- [Stripe.js API](https://docs.stripe.com/js)
+- [API key security](https://docs.stripe.com/keys-best-practices)
