@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public sealed partial class StripeAddressAutocompleteMode
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeAddressAutocompleteMode() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>Enable Stripe’s default automatic behavior.</summary>
     public static readonly StripeAddressAutocompleteMode Automatic = new("automatic");
 

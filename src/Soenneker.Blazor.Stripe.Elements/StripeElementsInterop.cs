@@ -18,6 +18,11 @@ namespace Soenneker.Blazor.Stripe.Elements;
 /// <inheritdoc cref="IStripeElementsInterop"/>
 public sealed class StripeElementsInterop : IStripeElementsInterop
 {
+    private readonly System.Text.Json.JsonSerializerOptions _jsonOptions;
+
+    private System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> GetJsonTypeInfo<T>() =>
+        (System.Text.Json.Serialization.Metadata.JsonTypeInfo<T>)_jsonOptions.GetTypeInfo(typeof(T));
+
     private readonly IResourceLoader _resourceLoader;
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer _stripeJsInitializer;
@@ -28,8 +33,9 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
     private readonly CancellationScope _cancellationScope = new();
 
-    public StripeElementsInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil)
+    public StripeElementsInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil, System.Text.Json.Serialization.JsonSerializerContext? jsonContext = null)
     {
+        _jsonOptions = LibraryJsonContext.WithContext(jsonContext);
         _resourceLoader = resourceLoader;
         _moduleImportUtil = moduleImportUtil;
         _stripeJsInitializer = new AsyncInitializer(InitializeStripeJs);
@@ -86,7 +92,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             await _scriptInitializer.Init(linked);
-            string? json = JsonUtil.Serialize(elementsConfiguration);
+            string? json = JsonUtil.Serialize(elementsConfiguration, GetJsonTypeInfo<StripeElementsConfiguration>());
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
             await module.InvokeVoidAsync("create", linked, elementId, json, dotNetObjectRef);
         }
@@ -135,7 +141,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails);
+            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, GetJsonTypeInfo<StripeCardBillingDetails>());
             return await module.InvokeAsync<StripeConfirmResult?>("confirmCardPayment", linked, elementId, paymentIntentClientSecret, json);
         }
     }
@@ -148,7 +154,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails);
+            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, GetJsonTypeInfo<StripeCardBillingDetails>());
             return await module.InvokeAsync<StripeConfirmResult?>("confirmCardSetup", linked, elementId, setupIntentClientSecret, json);
         }
     }
@@ -161,7 +167,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            string? json = options == null ? null : JsonUtil.Serialize(options);
+            string? json = options == null ? null : JsonUtil.Serialize(options, GetJsonTypeInfo<StripeCheckoutConfirmOptions>());
             return await module.InvokeAsync<StripeConfirmResult?>("confirmCheckout", linked, elementId, returnUrl, json);
         }
     }

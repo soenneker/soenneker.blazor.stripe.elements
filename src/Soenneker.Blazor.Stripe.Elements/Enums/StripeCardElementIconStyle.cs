@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripeCardElementIconStyle
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeCardElementIconStyle() => throw new System.NotSupportedException("Use a declared enum value.");
+
     public static readonly StripeCardElementIconStyle Default = new("default");
 
     public static readonly StripeCardElementIconStyle Solid = new("solid");

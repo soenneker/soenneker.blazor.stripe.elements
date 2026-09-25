@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripeElementsSetupFutureUsage
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeElementsSetupFutureUsage() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>Payment method will be reused while the customer is present (in-session).</summary>
     public static readonly StripeElementsSetupFutureUsage OnSession = new("on_session");
 

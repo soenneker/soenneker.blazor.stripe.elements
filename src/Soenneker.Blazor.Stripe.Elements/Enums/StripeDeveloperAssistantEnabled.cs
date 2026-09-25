@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripeDeveloperAssistantEnabled
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeDeveloperAssistantEnabled() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>Enable the sandbox assistant UI.</summary>
     public static readonly StripeDeveloperAssistantEnabled True = new("true");
 

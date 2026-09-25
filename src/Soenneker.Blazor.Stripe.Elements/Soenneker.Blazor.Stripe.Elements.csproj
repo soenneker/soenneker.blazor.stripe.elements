@@ -53,4 +53,7 @@
         <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="4.0.95" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.87" />
     </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Soenneker.Blazor.Stripe.Elements.Tests" />
+    </ItemGroup>
 </Project>

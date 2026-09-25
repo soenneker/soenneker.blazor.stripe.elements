@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public sealed partial class StripeAddressDisplayNameOption
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeAddressDisplayNameOption() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>Display a single full name field.</summary>
     public static readonly StripeAddressDisplayNameOption Full = new("full");
 

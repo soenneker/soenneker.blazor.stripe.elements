@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripeSyncAddressCheckboxOption
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeSyncAddressCheckboxOption() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>Show the checkbox in the billing Address Element.</summary>
     public static readonly StripeSyncAddressCheckboxOption Billing = new("billing");
 

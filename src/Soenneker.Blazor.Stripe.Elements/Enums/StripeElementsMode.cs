@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripeElementsMode
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeElementsMode() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>Use for one-time payment collection.</summary>
     public static readonly StripeElementsMode Payment = new("payment");
 

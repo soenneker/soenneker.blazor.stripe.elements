@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripeWalletDisplayOption
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeWalletDisplayOption() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>Show wallet options if available.</summary>
     public static readonly StripeWalletDisplayOption Auto = new("auto");
 

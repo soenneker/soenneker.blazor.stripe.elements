@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripeInputsMode
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeInputsMode() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>Displays each input with space around it.</summary>
     public static readonly StripeInputsMode Spaced = new("spaced");
 

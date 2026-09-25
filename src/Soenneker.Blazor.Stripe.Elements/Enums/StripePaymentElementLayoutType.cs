@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripePaymentElementLayoutType
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripePaymentElementLayoutType() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>
     /// The accordion.
     /// </summary>

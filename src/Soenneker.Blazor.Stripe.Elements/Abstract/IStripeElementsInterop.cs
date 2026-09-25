@@ -12,6 +12,7 @@ namespace Soenneker.Blazor.Stripe.Elements.Abstract;
 /// <summary>
 /// Provides JavaScript interop methods for managing and interacting with Stripe Elements in a Blazor application.
 /// </summary>
+/// <remarks>Library DTOs use generated JSON metadata. Register an additional source-generated JsonSerializerContext for custom values inside object-typed properties; unknown CLR types are rejected.</remarks>
 public interface IStripeElementsInterop : IAsyncDisposable
 {
     /// <summary>

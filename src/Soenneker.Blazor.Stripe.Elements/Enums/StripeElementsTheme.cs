@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.Stripe.Elements.Enums;
 [EnumValue<string>]
 public partial class StripeElementsTheme
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private StripeElementsTheme() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>The default Stripe theme.</summary>
     public static readonly StripeElementsTheme Stripe = new("stripe");
 
