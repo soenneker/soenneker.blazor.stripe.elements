@@ -13,7 +13,7 @@ namespace Soenneker.Blazor.Stripe.Elements.Tests;
 public class JsonMetadataTests
 {
     [Test]
-    public async Task Generated_contract_preserves_local_and_package_enum_values()
+    public async ValueTask Generated_contract_preserves_local_and_package_enum_values()
     {
         var value = new StripeElementsConfiguration { PublishableKey = "pk_test" };
         value.ElementsOptions.Currency = CurrencyCode.Usd;
@@ -29,7 +29,7 @@ public class JsonMetadataTests
     }
 
     [Test]
-    public async Task Unknown_payload_requires_additional_generated_metadata()
+    public async ValueTask Unknown_payload_requires_additional_generated_metadata()
     {
         var value = new AdditionalPayload { Name = "custom" };
         await Assert.That(() => JsonUtil.Serialize<object>(value, LibraryJsonContext.Get<object>())).Throws<NotSupportedException>();
