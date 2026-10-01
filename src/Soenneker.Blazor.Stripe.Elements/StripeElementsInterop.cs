@@ -88,7 +88,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             await _scriptInitializer.Init(linked);
-            string? json = JsonUtil.Serialize(elementsConfiguration);
+            string? json = JsonUtil.Serialize(elementsConfiguration, LibraryJsonContext.Get<StripeElementsConfiguration>());
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
             await module.InvokeVoidAsync("create", linked, elementId, json, dotNetObjectRef);
         }
@@ -137,7 +137,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails);
+            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, LibraryJsonContext.Get<StripeCardBillingDetails>());
             return await module.InvokeAsync<StripeConfirmResult?>("confirmCardPayment", linked, elementId, paymentIntentClientSecret, json);
         }
     }
@@ -150,7 +150,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails);
+            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, LibraryJsonContext.Get<StripeCardBillingDetails>());
             return await module.InvokeAsync<StripeConfirmResult?>("confirmCardSetup", linked, elementId, setupIntentClientSecret, json);
         }
     }
@@ -163,7 +163,7 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            string? json = options == null ? null : JsonUtil.Serialize(options);
+            string? json = options == null ? null : JsonUtil.Serialize(options, LibraryJsonContext.Get<StripeCheckoutConfirmOptions>());
             return await module.InvokeAsync<StripeConfirmResult?>("confirmCheckout", linked, elementId, returnUrl, json);
         }
     }
