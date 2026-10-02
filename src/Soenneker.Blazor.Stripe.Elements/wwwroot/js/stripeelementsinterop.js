@@ -88,8 +88,7 @@ export async function create(groupId, configJson, dotNetCallback) {
 export async function confirmPayment(groupId, clientSecret, returnUrl) {
     const group = findStripeGroup(groupId);
     if (!group) {
-        console.error(`StripeElements group "${groupId}" not found for confirmPayment.`);
-        return;
+        throw new Error(`StripeElements group "${groupId}" not found for confirmPayment.`);
     }
 
     if (isCheckoutGroup(group)) {
@@ -153,8 +152,7 @@ export function update(groupId) {
 export async function confirmSetup(groupId, clientSecret, returnUrl) {
     const group = findStripeGroup(groupId);
     if (!group) {
-        console.error(`StripeElements group "${groupId}" not found for confirmSetup.`);
-        return;
+        throw new Error(`StripeElements group "${groupId}" not found for confirmSetup.`);
     }
 
     if (isCheckoutGroup(group)) {
