@@ -1,5 +1,5 @@
+using Soenneker.Stripe.Dtos.JsError;
 using System.Text.Json.Serialization;
-using Soenneker.Dtos.Stripe.Error;
 
 namespace Soenneker.Blazor.Stripe.Elements.Dtos;
 
@@ -18,5 +18,5 @@ public sealed class StripeCardElementChangeResult
     public string? Brand { get; set; }
 
     [JsonPropertyName("error")]
-    public StripeErrorDto? Error { get; set; }
+    public StripeJsError? Error { get; set; }
 }

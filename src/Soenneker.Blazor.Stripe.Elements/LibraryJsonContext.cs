@@ -2,7 +2,6 @@
 using Soenneker.Blazor.Stripe.Elements.Configuration.Card;
 using Soenneker.Blazor.Stripe.Elements.Configuration.Checkout;
 using Soenneker.Blazor.Stripe.Elements.Configuration;
-using Soenneker.Blazor.Stripe.Elements.Dtos;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.Json.Serialization;
 using System.Text.Json;

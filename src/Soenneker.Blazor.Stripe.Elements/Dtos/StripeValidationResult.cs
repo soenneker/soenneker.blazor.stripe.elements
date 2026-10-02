@@ -1,4 +1,4 @@
-using Soenneker.Dtos.Stripe.Error;
+using Soenneker.Stripe.Dtos.JsError;
 using System.Text.Json.Serialization;
 
 namespace Soenneker.Blazor.Stripe.Elements.Dtos;
@@ -12,5 +12,5 @@ public sealed class StripeValidationResult
     /// The validation error returned by Stripe, if any.
     /// </summary>
     [JsonPropertyName("error")]
-    public StripeErrorDto? Error { get; set; }
+    public StripeJsError? Error { get; set; }
 }
