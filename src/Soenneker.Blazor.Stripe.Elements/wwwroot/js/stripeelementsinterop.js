@@ -1,4 +1,4 @@
-const stripeElementsGroups = [];
+const stripeElementsGroups = new Map();
 const stripeObservers = new Map();
 const stripeCache = new Map();
 
@@ -70,7 +70,7 @@ export async function create(groupId, configJson, dotNetCallback) {
         mountCardElement(group, config, dotNetCallback);
         mountAddressElement(group, config, dotNetCallback);
 
-        stripeElementsGroups.push(group);
+        stripeElementsGroups.set(groupId, group);
 
         try {
             await dotNetCallback.invokeMethodAsync("OnInitializedJs");
@@ -85,17 +85,17 @@ export async function create(groupId, configJson, dotNetCallback) {
     }
 }
 
-export async function confirmPayment(groupId, clientSecret, returnUrl) {
+export function confirmPayment(groupId, clientSecret, returnUrl) {
     const group = findStripeGroup(groupId);
     if (!group) {
         throw new Error(`StripeElements group "${groupId}" not found for confirmPayment.`);
     }
 
     if (isCheckoutGroup(group)) {
-        return await confirmCheckout(groupId, returnUrl, null);
+        return confirmCheckout(groupId, returnUrl, null);
     }
 
-    return await group.stripe.confirmPayment({
+    return group.stripe.confirmPayment({
         elements: group.elements,
         clientSecret,
         confirmParams: {
@@ -149,17 +149,17 @@ export function update(groupId) {
     }
 }
 
-export async function confirmSetup(groupId, clientSecret, returnUrl) {
+export function confirmSetup(groupId, clientSecret, returnUrl) {
     const group = findStripeGroup(groupId);
     if (!group) {
         throw new Error(`StripeElements group "${groupId}" not found for confirmSetup.`);
     }
 
     if (isCheckoutGroup(group)) {
-        return await confirmCheckout(groupId, returnUrl, null);
+        return confirmCheckout(groupId, returnUrl, null);
     }
 
-    return await group.stripe.confirmSetup({
+    return group.stripe.confirmSetup({
         clientSecret,
         elements: group.elements,
         confirmParams: {
@@ -169,20 +169,20 @@ export async function confirmSetup(groupId, clientSecret, returnUrl) {
     });
 }
 
-export async function confirmCardPayment(groupId, clientSecret, billingDetailsJson) {
+export function confirmCardPayment(groupId, clientSecret, billingDetailsJson) {
     const group = requireCardGroup(groupId, "confirmCardPayment");
     if (!group) return {error: {message: "Mounted Card Element not found"}};
 
-    return await group.stripe.confirmCardPayment(clientSecret, {
+    return group.stripe.confirmCardPayment(clientSecret, {
         payment_method: buildCardPaymentMethod(group, billingDetailsJson)
     });
 }
 
-export async function confirmCardSetup(groupId, clientSecret, billingDetailsJson) {
+export function confirmCardSetup(groupId, clientSecret, billingDetailsJson) {
     const group = requireCardGroup(groupId, "confirmCardSetup");
     if (!group) return {error: {message: "Mounted Card Element not found"}};
 
-    return await group.stripe.confirmCardSetup(clientSecret, {
+    return group.stripe.confirmCardSetup(clientSecret, {
         payment_method: buildCardPaymentMethod(group, billingDetailsJson)
     });
 }
@@ -226,10 +226,7 @@ export function unmountGroup(groupId) {
 
     cleanupGroup(group);
 
-    const groupIndex = stripeElementsGroups.findIndex(g => g.id === groupId);
-    if (groupIndex > -1) {
-        stripeElementsGroups.splice(groupIndex, 1);
-    }
+    stripeElementsGroups.delete(groupId);
 
     disconnectStripeObserver(groupId);
 }
@@ -532,7 +529,10 @@ function parseOptions(optionsJson) {
 }
 
 function removeUndefinedProperties(value) {
-    return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null));
+    for (const key in value) {
+        if (value[key] == null) delete value[key];
+    }
+    return value;
 }
 
 function cleanupGroup(group) {
@@ -565,7 +565,7 @@ function disconnectStripeObserver(groupId) {
 }
 
 function findStripeGroup(groupId) {
-    return stripeElementsGroups.find(g => g.id === groupId);
+    return stripeElementsGroups.get(groupId);
 }
 
 function isCheckoutGroup(group) {

@@ -17,10 +17,12 @@ public abstract class StripeElementBase : LeptonIdentifiableElement
     [CascadingParameter]
     public Dictionary<Type, string>? ElementIds { get; set; }
 
+    private string? _fallbackElementId;
+
     protected string ElementId =>
         ElementIds != null && ElementIds.TryGetValue(GetType(), out string? id)
             ? id
-            : BlazorIdGenerator.New("stripe-element"); // fallback if not defined
+            : (_fallbackElementId ??= BlazorIdGenerator.New("stripe-element"));
 
     protected Dictionary<string, object> ElementAttributes
     {
