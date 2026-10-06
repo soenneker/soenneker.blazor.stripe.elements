@@ -42,3 +42,8 @@ jobs:
 
       - name: Pack
         run: dotnet pack src/Soenneker.Blazor.Stripe.Elements/Soenneker.Blazor.Stripe.Elements.csproj --configuration Release --no-build --no-restore --output . --verbosity minimal
+
+      - name: Trimmed JSON smoke
+        run: |
+          dotnet publish test/Soenneker.Blazor.Stripe.Elements.TrimSmoke/Soenneker.Blazor.Stripe.Elements.TrimSmoke.csproj --configuration Release --runtime linux-x64 --self-contained true --output "${{ runner.temp }}/trim-smoke" --verbosity minimal
+          "${{ runner.temp }}/trim-smoke/Soenneker.Blazor.Stripe.Elements.TrimSmoke"

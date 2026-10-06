@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.JSInterop;
 using Soenneker.Blazor.Stripe.Elements.Abstract;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
@@ -102,7 +103,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            return await module.InvokeAsync<StripeConfirmResult?>("confirmPayment", linked, elementId, paymentIntentClientSecret, returnUrl);
+            JsonElement payload = await module.InvokeAsync<JsonElement>("confirmPayment", linked, elementId, paymentIntentClientSecret, returnUrl);
+            return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
         }
     }
 
@@ -113,7 +115,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            return await module.InvokeAsync<StripeSubmitResult?>("submit", linked, elementId);
+            JsonElement payload = await module.InvokeAsync<JsonElement>("submit", linked, elementId);
+            return payload.Deserialize(InteropJsonContext.Default.StripeSubmitResult);
         }
     }
 
@@ -125,7 +128,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            return await module.InvokeAsync<StripeConfirmResult?>("confirmSetup", linked, elementId, setupIntentClientSecret, returnUrl);
+            JsonElement payload = await module.InvokeAsync<JsonElement>("confirmSetup", linked, elementId, setupIntentClientSecret, returnUrl);
+            return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
         }
     }
 
@@ -138,7 +142,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
             string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, LibraryJsonContext.Get<StripeCardBillingDetails>());
-            return await module.InvokeAsync<StripeConfirmResult?>("confirmCardPayment", linked, elementId, paymentIntentClientSecret, json);
+            JsonElement payload = await module.InvokeAsync<JsonElement>("confirmCardPayment", linked, elementId, paymentIntentClientSecret, json);
+            return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
         }
     }
 
@@ -151,7 +156,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
             string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, LibraryJsonContext.Get<StripeCardBillingDetails>());
-            return await module.InvokeAsync<StripeConfirmResult?>("confirmCardSetup", linked, elementId, setupIntentClientSecret, json);
+            JsonElement payload = await module.InvokeAsync<JsonElement>("confirmCardSetup", linked, elementId, setupIntentClientSecret, json);
+            return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
         }
     }
 
@@ -164,7 +170,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
             string? json = options == null ? null : JsonUtil.Serialize(options, LibraryJsonContext.Get<StripeCheckoutConfirmOptions>());
-            return await module.InvokeAsync<StripeConfirmResult?>("confirmCheckout", linked, elementId, returnUrl, json);
+            JsonElement payload = await module.InvokeAsync<JsonElement>("confirmCheckout", linked, elementId, returnUrl, json);
+            return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
         }
     }
 

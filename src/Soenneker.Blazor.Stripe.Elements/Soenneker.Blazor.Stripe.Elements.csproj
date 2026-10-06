@@ -56,4 +56,7 @@
     <ItemGroup>
         <InternalsVisibleTo Include="Soenneker.Blazor.Stripe.Elements.Tests" />
     </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Soenneker.Blazor.Stripe.Elements.TrimSmoke" />
+    </ItemGroup>
 </Project>

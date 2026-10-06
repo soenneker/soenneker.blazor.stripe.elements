@@ -1,3 +1,4 @@
+@using System.Text.Json
 @using System.Threading
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -350,6 +351,9 @@
     }
 
     [JSInvokable("OnCardElementChangeJs")]
+    public Task OnCardElementChangeFromJson(JsonElement payload) =>
+        OnCardElementChangeJs(payload.Deserialize(InteropJsonContext.Default.StripeCardElementChangeResult)!);
+
     public Task OnCardElementChangeJs(StripeCardElementChangeResult result)
     {
         return OnCardElementChange.InvokeIfHasDelegate(result);
