@@ -2,6 +2,7 @@ using Soenneker.Stripe.Dtos.JsError;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Soenneker.Blazor.Stripe.Elements.Dtos;
+using System.Threading;
 
 namespace Soenneker.Blazor.Stripe.Elements.Tests;
 
@@ -13,7 +14,7 @@ public class StripeJsErrorTests
     [Arguments("validation_error")]
     [Arguments("api_connection_error")]
     [Arguments("future_error")]
-    public async Task Browser_errors_reach_all_result_types(string errorType)
+    public async Task Browser_errors_reach_all_result_types(string errorType, CancellationToken cancellationToken)
     {
         string json = $$$"""{"error":{"type":"{{{errorType}}}","code":"future_code","decline_code":"future_decline","message":"Payment details need attention."}}""";
         StripeJsError?[] errors =
@@ -34,7 +35,7 @@ public class StripeJsErrorTests
     }
 
     [Test]
-    public async Task Expanded_error_objects_are_preserved()
+    public async Task Expanded_error_objects_are_preserved(CancellationToken cancellationToken)
     {
         const string json = """
             {"error":{"type":"card_error","code":"card_declined","message":"Declined",
@@ -51,7 +52,7 @@ public class StripeJsErrorTests
     }
 
     [Test]
-    public async Task Successful_results_still_deserialize()
+    public async Task Successful_results_still_deserialize(CancellationToken cancellationToken)
     {
         StripeSubmitResult submit = JsonSerializer.Deserialize<StripeSubmitResult>("{}", Options)!;
         StripeConfirmResult confirmation = JsonSerializer.Deserialize<StripeConfirmResult>(

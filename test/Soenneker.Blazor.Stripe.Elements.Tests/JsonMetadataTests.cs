@@ -7,6 +7,7 @@ using Soenneker.Blazor.Stripe.Elements.Configuration;
 using Soenneker.Blazor.Stripe.Elements.Enums;
 using Soenneker.Enums.CurrencyCodes;
 using Soenneker.Utils.Json;
+using System.Threading;
 
 namespace Soenneker.Blazor.Stripe.Elements.Tests;
 
@@ -15,7 +16,7 @@ public class JsonMetadataTests
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async ValueTask Generated_contract_preserves_local_and_package_enum_values(bool useDefaultOptions)
+    public async ValueTask Generated_contract_preserves_local_and_package_enum_values(bool useDefaultOptions, CancellationToken cancellationToken)
     {
         var value = new StripeElementsConfiguration { PublishableKey = "pk_test" };
         value.ElementsOptions.Currency = CurrencyCode.Usd;
@@ -31,14 +32,14 @@ public class JsonMetadataTests
     }
 
     [Test]
-    public async ValueTask Default_options_serialize_custom_object_values_without_a_context()
+    public async ValueTask Default_options_serialize_custom_object_values_without_a_context(CancellationToken cancellationToken)
     {
         string json = JsonUtil.Serialize(new AdditionalPayload { Name = "custom" })!;
         await Assert.That(json).IsEqualTo("{\"name\":\"custom\"}");
     }
 
     [Test]
-    public async ValueTask Unknown_payload_requires_additional_generated_metadata()
+    public async ValueTask Unknown_payload_requires_additional_generated_metadata(CancellationToken cancellationToken)
     {
         var value = new AdditionalPayload { Name = "custom" };
         await Assert.That(() => JsonUtil.Serialize<object>(value, LibraryJsonContext.Get<object>())).Throws<NotSupportedException>();
