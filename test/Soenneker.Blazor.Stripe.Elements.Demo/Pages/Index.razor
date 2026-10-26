@@ -118,7 +118,6 @@
         {
             Logger.LogError(ex, "Error validating payment");
             _buttonLoading = false;
-            StateHasChanged();
         }
     }
 
@@ -127,7 +126,6 @@
         if (submitResult?.Error != null)
         {
             _buttonLoading = false;
-            StateHasChanged();
             return;
         }
 
@@ -153,7 +151,6 @@
             Logger.LogWarning("Stripe confirmation failed: {Message}", confirmResult.Error.Message);
 
         _buttonLoading = false;
-        StateHasChanged();
 
         return Task.CompletedTask;
     }
