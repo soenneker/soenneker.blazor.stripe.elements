@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Stripe.Elements.Abstract;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
@@ -76,15 +77,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("createObserver", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.CreateObserver' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("createObserver", linked, elementId);
         }
     }
 
@@ -95,17 +89,10 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                await _scriptInitializer.Init(linked);
-                string? json = JsonUtil.Serialize(elementsConfiguration, LibraryJsonContext.Get<StripeElementsConfiguration>());
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("create", linked, elementId, json, dotNetObjectRef);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.Create' failed: {exception.Message}", exception);
-            }
+            await _scriptInitializer.Init(linked);
+            string? json = JsonUtil.Serialize(elementsConfiguration, LibraryJsonContext.Get<StripeElementsConfiguration>());
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("create", linked, elementId, json, dotNetObjectRef);
         }
     }
 
@@ -116,16 +103,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                JsonElement payload = await module.InvokeAsync<JsonElement>("confirmPayment", linked, elementId, paymentIntentClientSecret, returnUrl);
-                return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.ConfirmPayment' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            return await module.InvokeWithContextAsync("confirmPayment", InteropJsonContext.Default.StripeConfirmResult, linked, elementId, paymentIntentClientSecret, returnUrl);
         }
     }
 
@@ -135,16 +114,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                JsonElement payload = await module.InvokeAsync<JsonElement>("submit", linked, elementId);
-                return payload.Deserialize(InteropJsonContext.Default.StripeSubmitResult);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.Submit' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            return await module.InvokeWithContextAsync("submit", InteropJsonContext.Default.StripeSubmitResult, linked, elementId);
         }
     }
 
@@ -155,16 +126,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                JsonElement payload = await module.InvokeAsync<JsonElement>("confirmSetup", linked, elementId, setupIntentClientSecret, returnUrl);
-                return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.ConfirmSetup' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            return await module.InvokeWithContextAsync("confirmSetup", InteropJsonContext.Default.StripeConfirmResult, linked, elementId, setupIntentClientSecret, returnUrl);
         }
     }
 
@@ -175,17 +138,9 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, LibraryJsonContext.Get<StripeCardBillingDetails>());
-                JsonElement payload = await module.InvokeAsync<JsonElement>("confirmCardPayment", linked, elementId, paymentIntentClientSecret, json);
-                return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.ConfirmCardPayment' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, LibraryJsonContext.Get<StripeCardBillingDetails>());
+            return await module.InvokeWithContextAsync("confirmCardPayment", InteropJsonContext.Default.StripeConfirmResult, linked, elementId, paymentIntentClientSecret, json);
         }
     }
 
@@ -196,17 +151,9 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, LibraryJsonContext.Get<StripeCardBillingDetails>());
-                JsonElement payload = await module.InvokeAsync<JsonElement>("confirmCardSetup", linked, elementId, setupIntentClientSecret, json);
-                return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.ConfirmCardSetup' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            string? json = billingDetails == null ? null : JsonUtil.Serialize(billingDetails, LibraryJsonContext.Get<StripeCardBillingDetails>());
+            return await module.InvokeWithContextAsync("confirmCardSetup", InteropJsonContext.Default.StripeConfirmResult, linked, elementId, setupIntentClientSecret, json);
         }
     }
 
@@ -217,17 +164,9 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                string? json = options == null ? null : JsonUtil.Serialize(options, LibraryJsonContext.Get<StripeCheckoutConfirmOptions>());
-                JsonElement payload = await module.InvokeAsync<JsonElement>("confirmCheckout", linked, elementId, returnUrl, json);
-                return payload.Deserialize(InteropJsonContext.Default.StripeConfirmResult);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.ConfirmCheckout' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            string? json = options == null ? null : JsonUtil.Serialize(options, LibraryJsonContext.Get<StripeCheckoutConfirmOptions>());
+            return await module.InvokeWithContextAsync("confirmCheckout", InteropJsonContext.Default.StripeConfirmResult, linked, elementId, returnUrl, json);
         }
     }
 
@@ -237,15 +176,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("update", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.Update' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("update", linked, elementId);
         }
     }
 
@@ -255,15 +187,8 @@ public sealed class StripeElementsInterop : IStripeElementsInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("unmountGroup", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'StripeElementsInterop.Unmount' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("unmountGroup", linked, elementId);
         }
     }
 
