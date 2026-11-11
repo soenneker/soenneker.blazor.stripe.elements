@@ -47,13 +47,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.137" />
+        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.138" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.476" />
-        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="11.0.4211" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1824" />
-        <PackageReference Include="Soenneker.Stripe.Dtos.JsError" Version="11.0.10" />
-        <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="11.0.123" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.138" />
+        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="11.0.4216" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1826" />
+        <PackageReference Include="Soenneker.Stripe.Dtos.JsError" Version="11.0.11" />
+        <PackageReference Include="Soenneker.Enums.CurrencyCodes" Version="11.0.124" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.141" />
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="Soenneker.Blazor.Stripe.Elements.Tests" />
